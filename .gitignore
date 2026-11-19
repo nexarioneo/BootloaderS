@@ -21,6 +21,9 @@ captures/
 # Third-party reference material
 reference/
 
+# Release signing
+keystore/
+
 # OS
 .DS_Store
 Thumbs.db

@@ -1,13 +1,38 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val signingProperties = Properties().apply {
+    val propertiesFile = rootProject.file("local.properties")
+    if (propertiesFile.exists()) {
+        propertiesFile.inputStream().use { load(it) }
+    }
+}
+
+fun signingValue(name: String): String? =
+    System.getenv(name) ?: signingProperties.getProperty(name)
+
 android {
     namespace = "dev.bootloaderstudio.app"
     compileSdk = 36
     buildToolsVersion = "36.1.0"
+
+    signingConfigs {
+        create("release") {
+            val storeFilePath = signingValue("RELEASE_STORE_FILE")
+            val store = storeFilePath?.let { rootProject.file(it) }
+            if (store != null && store.isFile && store.length() > 0) {
+                storeFile = store
+                storePassword = signingValue("RELEASE_STORE_PASSWORD")
+                keyAlias = signingValue("RELEASE_KEY_ALIAS")
+                keyPassword = signingValue("RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
 
     defaultConfig {
         applicationId = "dev.bootloaderstudio.app"
@@ -21,12 +46,26 @@ android {
         }
     }
 
+    // Release builds produce one APK per ABI plus a universal APK.
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            isUniversalApk = true
+        }
+    }
+
     buildTypes {
         debug {
             versionNameSuffix = "-debug"
         }
         release {
             isMinifyEnabled = false
+            val releaseSigning = signingConfigs.getByName("release")
+            if (releaseSigning.storeFile != null) {
+                signingConfig = releaseSigning
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

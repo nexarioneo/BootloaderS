@@ -66,6 +66,32 @@ the auth/unlock repositories against MockWebServer.
 The build expects an Android SDK with API 36 and build-tools 36.1.0. Set
 `sdk.dir` in `local.properties` or export `ANDROID_HOME`.
 
+### Release builds
+
+Release builds are signed and produce one APK per ABI plus a universal APK:
+
+```bash
+sh gradlew assembleRelease
+```
+
+| APK | ABI |
+| --- | --- |
+| `app-armeabi-v7a-release.apk` | 32-bit ARM |
+| `app-arm64-v8a-release.apk` | 64-bit ARM |
+| `app-x86-release.apk` | 32-bit x86 |
+| `app-x86_64-release.apk` | 64-bit x86 |
+| `app-universal-release.apk` | all of the above |
+
+Signing reads `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`,
+`RELEASE_KEY_ALIAS`, and `RELEASE_KEY_PASSWORD` from the environment or
+`local.properties`. The keystore lives in `keystore/` and is never committed.
+
+CI (`.github/workflows/release.yml`) builds the same signed release APKs on
+every push to `main`, uploads them as workflow artifacts, and attaches them to a
+GitHub Release when a `v*` tag is pushed. CI receives the keystore and passwords
+through the `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, and
+`KEY_PASSWORD` repository secrets.
+
 ### Linux ARM64 hosts
 
 Google's Maven `aapt2` artifact is x86_64-only. On an aarch64 Linux host, install
