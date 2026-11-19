@@ -1,0 +1,309 @@
+<resources>
+    <string name="app_name">Bootloader Studio</string>
+
+    <!-- Common -->
+    <string name="btn_back">Back</string>
+    <string name="btn_retry">Retry</string>
+    <string name="btn_continue">Continue</string>
+    <string name="btn_close">Close</string>
+    <string name="btn_refresh">Refresh</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_done">Done</string>
+    <string name="unknown">Unknown</string>
+
+    <!-- Errors -->
+    <string name="error_account_or_device_missing">Account or device information is missing. Go back and start again.</string>
+    <string name="error_unlock_not_prepared">The unlock request has not been prepared yet. Run the eligibility check first.</string>
+    <string name="error_device_id_missing">The Xiaomi session has no device ID. Sign in again before requesting an unlock.</string>
+    <string name="error_network">Network error. Check your connection and try again.</string>
+    <string name="error_unknown">Unknown error. Try again later.</string>
+    <string name="error_server_detail_prefix">Server detail: </string>
+    <string name="error_code_prefix">Code: </string>
+
+    <!-- Xiaomi server error messages (official Mi Unlock wording) -->
+    <string name="xiaomi_error_10000_official">Request parameter error</string>
+    <string name="xiaomi_error_10000_guidance">Check the account session, reconnect the phone in fastboot mode, and start the request again.</string>
+    <string name="xiaomi_error_10001_official">Signature verification failed</string>
+    <string name="xiaomi_error_10001_guidance">Sign in again with the account bound to the device. If it still fails, use the official Mi Unlock tool.</string>
+    <string name="xiaomi_error_10002_official">The same IP request too often</string>
+    <string name="xiaomi_error_10002_guidance">Xiaomi is rate-limiting this network. Wait before trying again; the app will not retry automatically.</string>
+    <string name="xiaomi_error_10003_official">Internal server error</string>
+    <string name="xiaomi_error_10003_guidance">Xiaomi\'s server had an internal error. Try again later. No automatic retry was made.</string>
+    <string name="xiaomi_error_10004_official">Request has expired</string>
+    <string name="xiaomi_error_10004_guidance">The request expired before Xiaomi processed it. Go back to the review screen and request a fresh nonce.</string>
+    <string name="xiaomi_error_10005_official">Invalid Nonce request</string>
+    <string name="xiaomi_error_10005_guidance">The unlock nonce was rejected. Go back to the review screen and request a new one.</string>
+    <string name="xiaomi_error_10006_official">Client version is too low</string>
+    <string name="xiaomi_error_10006_guidance">Xiaomi no longer accepts this client version. Update the app when a newer version is available.</string>
+    <string name="xiaomi_error_10013_guidance">The device is not activated yet or its activation data is incomplete. Check the account binding and network, then retry after the required waiting period.</string>
+    <string name="xiaomi_error_10023_guidance">This account has reached the device unlock limit. Use an account that meets Xiaomi\'s current limit policy.</string>
+    <string name="xiaomi_error_20030_official">You should wait at least 30 days to unlock another device</string>
+    <string name="xiaomi_error_20030_guidance">The server enforces a 30-day window between unlocks. Keep the account bound to the device and wait for that window to pass.</string>
+    <string name="xiaomi_error_20031_official">Add your account and device in MIUI\'s Settings > Developer options > Mi Unlock status</string>
+    <string name="xiaomi_error_20031_guidance">Bind the same account on the phone: Settings > Additional settings > Developer options > Mi Unlock status > Add account and device.</string>
+    <string name="xiaomi_error_20032_official">Failed to generate signature value required to unlock</string>
+    <string name="xiaomi_error_20032_guidance">Try again later. If the error persists, use the official Mi Unlock tool.</string>
+    <string name="xiaomi_error_20033_official">User portrait scores too low or black</string>
+    <string name="xiaomi_error_20033_guidance">Xiaomi\'s account risk/eligibility check failed. The app cannot bypass this; use an account in good standing.</string>
+    <string name="xiaomi_error_20034_official">Current account cannot unlock this device</string>
+    <string name="xiaomi_error_20034_guidance">Make sure this account is bound to this exact device. A different account cannot unlock it.</string>
+    <string name="xiaomi_error_20035_official">Go to unlock.update.miui.com to download the latest version</string>
+    <string name="xiaomi_error_20035_guidance">Download the current official Mi Unlock version, then retry.</string>
+    <string name="xiaomi_error_20036_official">The unlock waiting period has not finished</string>
+    <string name="xiaomi_error_20036_guidance">The waiting period is still active. Keep the account bound to the device and retry after Xiaomi\'s displayed time.</string>
+    <string name="xiaomi_error_20037_official">Unlock number has reached the upper limit</string>
+    <string name="xiaomi_error_20037_guidance">The account has reached its unlock limit. Wait for the next quota window.</string>
+    <string name="xiaomi_error_20038_guidance">The device is locked to another Xiaomi account. Sign in with that account, disable Find Device, then retry.</string>
+    <string name="xiaomi_error_20039_guidance">The device token is incomplete. Reconnect the phone in fastboot mode and start again.</string>
+    <string name="xiaomi_error_20040_official">You have to use your device for a certain period of time before unlocking it</string>
+    <string name="xiaomi_error_20040_guidance">Use the device normally for the required period before requesting an unlock.</string>
+    <string name="xiaomi_error_20041_guidance">Add a phone number to the Xiaomi account, then try again.</string>
+    <string name="xiaomi_error_20045_guidance">The account region and device region do not match. Use an account from the device\'s region.</string>
+    <string name="xiaomi_error_30002_guidance">Apply for bootloader unlock authorization in Mi Community, then retry.</string>
+
+    <!-- Dialogs -->
+    <string name="usb_host_required_title">USB Host Required</string>
+    <string name="usb_host_required_desc">This Android device cannot act as a USB host, so it cannot communicate with a Xiaomi phone in fastboot mode. You can still read the guide, but unlock and flash features are unavailable on this device.</string>
+    <string name="usb_host_open_guide">Open Guide</string>
+    <string name="usb_diag_title">USB diagnostics</string>
+    <string name="usb_diag_no_devices">No USB devices attached. Connect the Xiaomi phone in fastboot mode with an OTG cable, then refresh.</string>
+
+    <!-- Home -->
+    <string name="home_badge_unofficial">UNOFFICIAL TOOL</string>
+    <string name="home_hero_desc">Unlock and flash Xiaomi devices from an Android host.</string>
+    <string name="home_tool_unlock_title">Unlock bootloader</string>
+    <string name="home_tool_unlock_desc_no_host">USB host (OTG) is unavailable on this device.</string>
+    <string name="home_tool_unlock_desc_ready">Account ready: ID %1$s</string>
+    <string name="home_tool_unlock_desc_default">Server-authorized unlock for Xiaomi, Redmi, and POCO.</string>
+    <string name="home_tool_unlock_badge_ready">Ready</string>
+    <string name="home_tool_miflash_title">Mi Flash</string>
+    <string name="home_tool_miflash_desc">Flash fastboot ROMs.</string>
+    <string name="home_tool_assistant_title">Mi Assistant</string>
+    <string name="home_tool_assistant_desc">Recovery and ROM tools.</string>
+    <string name="home_tool_soon">Soon</string>
+    <string name="home_otg_hint">Run this app on a second Android device with an OTG cable. The phone being unlocked stays in fastboot mode.</string>
+    <string name="home_disclaimer_title">Not affiliated with Xiaomi</string>
+    <string name="home_disclaimer_desc">Unofficial tool. Unlocking may erase all data, void your warranty, and weaken device security. Xiaomi\'s server decides whether your account and device are eligible.</string>
+    <string name="home_btn_guide">Guide</string>
+    <string name="home_btn_settings">Settings</string>
+
+    <!-- Login -->
+    <string name="login_title">Xiaomi Account Login</string>
+    <string name="login_clear_cookies">Clear cookies</string>
+    <string name="login_cookies_cleared">Login cookies cleared</string>
+    <string name="login_hero_title">Connect Xiaomi Account</string>
+    <string name="login_hero_desc">Account authorization from Xiaomi\'s official server is required to unlock the bootloader.</string>
+    <string name="login_active_session_title">Active Account Session</string>
+    <string name="login_active_session_desc">Account connected and ready to use.</string>
+    <string name="login_label_account_id">Account ID</string>
+    <string name="login_label_status">Status</string>
+    <string name="login_status_authorized">Authorized</string>
+    <string name="login_btn_continue_as">Continue as Account %1$s</string>
+    <string name="login_btn_switch_account">Switch to Another Account</string>
+    <string name="login_not_logged_in_title">Not Signed In</string>
+    <string name="login_not_logged_in_desc">Tap the button below to open the official Xiaomi login page in a secure isolated WebView.</string>
+    <string name="login_btn_sign_in">Sign In with Xiaomi Account</string>
+    <string name="login_how_it_works_title">How Authorization Works</string>
+    <string name="login_step_1_title">Official Xiaomi Login</string>
+    <string name="login_step_1_desc">You enter your credentials directly on account.xiaomi.com. Your password is never stored or read by this app.</string>
+    <string name="login_step_2_title">Security Token Extraction</string>
+    <string name="login_step_2_desc">The app captures the temporary STS authorization token and device identifier needed to communicate with Xiaomi\'s unlock API.</string>
+    <string name="login_step_3_title">Official Server Validation</string>
+    <string name="login_step_3_desc">Xiaomi\'s servers verify account eligibility, binding time, and unlock permissions before signing the unlock token.</string>
+    <string name="login_security_note_title">Security &amp; Privacy</string>
+    <string name="login_security_note_desc">Your credentials are sent directly to Xiaomi over TLS. Only temporary session cookies are retained to sign unlock requests.</string>
+    <string name="login_sec_item1_title">Official Server Authentication</string>
+    <string name="login_sec_item1_desc">Login is processed directly on Xiaomi\'s official servers (account.xiaomi.com) without third-party proxy servers.</string>
+    <string name="login_sec_item2_title">Encrypted Token (HttpOnly)</string>
+    <string name="login_sec_item2_desc">The app only extracts the temporary session token for fastboot unlock authorization; your password is never stored.</string>
+    <string name="login_sec_item3_title">Full User Control</string>
+    <string name="login_sec_item3_desc">Session data and cookies can be cleared at any time via the trash icon at the top right.</string>
+    <string name="login_req_title">Xiaomi Authorization Requirements</string>
+    <string name="login_req_1_title">Bind Account on Device</string>
+    <string name="login_req_1_desc">The account must be bound to the target device in Developer options &gt; Mi Unlock status using mobile data.</string>
+    <string name="login_req_2_title">Follow Official Waiting Period</string>
+    <string name="login_req_2_desc">Xiaomi\'s servers enforce a waiting period (typically 72 or 168 hours) before unlock authorization is granted.</string>
+    <string name="login_req_3_title">Prepare USB OTG Cable</string>
+    <string name="login_req_3_desc">Connect the target device in Fastboot mode to this host phone using a stable data cable and OTG adapter.</string>
+    <string name="login_disclaimer">Note: Bootloader Studio is independent software and not affiliated with Xiaomi Inc. Unlock authorization is subject to official Xiaomi server terms.</string>
+    <string name="login_open_browser">Open in browser</string>
+
+    <!-- WebView & Success Dialog -->
+    <string name="webview_menu_reload">Reload page</string>
+    <string name="webview_menu_open_external">Open in external browser</string>
+    <string name="webview_menu_copy_link">Copy link</string>
+    <string name="webview_menu_clear_cache">Clear cookies &amp; cache</string>
+    <string name="webview_toast_link_copied">Link copied to clipboard</string>
+    <string name="webview_toast_cache_cleared">Cookies and cache cleared</string>
+    <string name="webview_error_title">Failed to Load Page</string>
+    <string name="webview_error_open_browser">Open Browser</string>
+    <string name="webview_error_retry">Try Again</string>
+    <string name="webview_error_format">Failed to load page: %1$s (code %2$d)</string>
+    <string name="webview_nav_back">Back</string>
+    <string name="webview_nav_reload">Reload</string>
+    <string name="webview_nav_menu">More options</string>
+    <string name="login_success_title">Login Successful</string>
+    <string name="login_success_desc">Xiaomi account session verified. Redirecting to account…</string>
+    <string name="login_success_continue">Continue</string>
+    <string name="login_save_failed_title">Could not save the session</string>
+    <string name="login_save_failed_desc">Xiaomi completed the login, but the required session cookies could not be read. Scan the page again, or go back and sign in again.</string>
+    <string name="login_save_failed_retry">Scan again</string>
+
+    <!-- Account -->
+    <string name="account_title">Xiaomi account</string>
+    <string name="account_loading">Contacting Xiaomi account services…</string>
+    <string name="account_session_ready">Session ready</string>
+    <string name="account_id">Account ID</string>
+    <string name="account_region">Region</string>
+    <string name="account_unlock_server">Unlock server</string>
+    <string name="account_security_desc">Your password is entered only on Xiaomi\'s official login page. This app keeps the session in memory and sends the unlock request directly to Xiaomi\'s server.</string>
+    <string name="account_btn_continue">Continue to device</string>
+    <string name="account_btn_switch">Switch Account</string>
+    <string name="account_no_session">No Xiaomi session is available. Go back and sign in again.</string>
+    <string name="account_session_expired">Your Xiaomi session expired. Sign in again to continue.</string>
+    <string name="account_btn_relogin">Sign In Again</string>
+    <string name="account_server_decision_note">Xiaomi\'s server decides whether this account and device are eligible. A waiting period, Community authorization, or quota may still apply.</string>
+
+    <!-- Device -->
+    <string name="device_title">Connect device</string>
+    <string name="device_fastboot_card_title">Enter fastboot mode</string>
+    <string name="device_fastboot_card_desc">Power off the Xiaomi phone, hold Volume Down + Power, then connect it to this Android host with an OTG cable.</string>
+    <string name="device_idle_text">Device detection is idle. Tap Retry to start again.</string>
+    <string name="device_start_detection">Start detection</string>
+    <string name="device_state_waiting">Waiting for device</string>
+    <string name="device_state_permission">USB permission</string>
+    <string name="device_state_reading">Reading device</string>
+    <string name="device_keep_cable">Keep the OTG cable connected.</string>
+    <string name="device_detected_title">Device detected</string>
+    <string name="device_codename">Codename</string>
+    <string name="device_bootloader">Bootloader</string>
+    <string name="device_token">Device token</string>
+    <string name="device_already_unlocked">Already unlocked</string>
+    <string name="device_locked">Locked</string>
+    <string name="device_already_unlocked_desc">This device is already unlocked. No unlock is needed.</string>
+    <string name="device_btn_continue">Continue</string>
+    <string name="device_error_default">Could not communicate with the device.</string>
+    <string name="device_permission_denied">USB permission was denied. Reconnect the OTG cable or tap Retry to ask again. The app will not keep prompting automatically.</string>
+    <string name="device_btn_retry">Retry</string>
+    <string name="device_btn_refresh">Refresh detection</string>
+    <string name="device_btn_diagnostics">USB diagnostics</string>
+    <string name="device_hub_note">Some devices need a powered OTG hub. Use a good data cable and keep the screen on until the process finishes.</string>
+    <string name="device_error_no_usb_host">This Android device does not support USB host mode.</string>
+    <string name="device_waiting_hint">Connect the phone in fastboot mode with an OTG cable.</string>
+    <string name="device_permission_hint">Allow USB access for the connected device.</string>
+    <string name="device_reading_hint">Reading device information…</string>
+    <string name="device_slow_read_hint">Still reading the device. Some phones take a few seconds to answer fastboot commands.</string>
+    <string name="device_error_timeout">The device did not respond in time. Keep the OTG cable connected and tap Refresh or Retry.</string>
+    <string name="device_error_disconnected">The device disconnected during USB communication. Reconnect the OTG cable and tap Refresh.</string>
+    <string name="device_error_changed">A different device is connected. Tap Refresh to detect it again before continuing.</string>
+    <string name="device_error_token_changed">The device token changed. Tap Refresh and restart the unlock process from the beginning.</string>
+    <string name="device_error_token_missing">Could not read the device token. Reconnect the phone in fastboot mode and tap Refresh.</string>
+    <string name="device_error_token_reread">Could not re-read the device token. Reconnect the phone in fastboot mode and restart the process.</string>
+    <string name="device_error_open">Could not open the USB device. Reconnect the OTG cable and tap Refresh.</string>
+    <string name="device_error_product_missing">Could not read the device codename. Reconnect the phone in fastboot mode.</string>
+    <string name="device_error_permission_denied">USB permission was denied. Reconnect the OTG cable or tap Retry.</string>
+
+    <!-- Preflight -->
+    <string name="preflight_title">Review unlock</string>
+    <string name="preflight_card_title">Unlock request</string>
+    <string name="preflight_account">Account</string>
+    <string name="preflight_region">Region</string>
+    <string name="preflight_device">Device</string>
+    <string name="preflight_server">Unlock server</string>
+    <string name="preflight_warning">Unlocking the bootloader usually erases all user data and may void the warranty. Back up your phone before continuing.</string>
+    <string name="preflight_checking">Checking account and device eligibility with Xiaomi…</string>
+    <string name="preflight_retry_check">Retry eligibility check</string>
+    <string name="preflight_notice_title">Xiaomi server notice</string>
+    <string name="preflight_data_will_erase">This device will erase user data when unlocked.</string>
+    <string name="preflight_data_no_erase">This device does not erase user data when unlocked.</string>
+    <string name="preflight_data_unknown">Data wipe behavior was not reported by the server.</string>
+    <string name="preflight_confirm_checkbox">I understand the risks and want to request the unlock.</string>
+    <string name="preflight_btn_request">Request Unlock</string>
+    <string name="preflight_footer_note">This app sends the same server-authorized request as Xiaomi\'s official Windows tool. It cannot bypass a waiting period, quota, or Community authorization.</string>
+
+    <!-- Unlock -->
+    <string name="unlock_title">Unlocking</string>
+    <string name="unlock_phase_idle">Preparing the unlock request…</string>
+    <string name="unlock_message_requesting">Requesting server approval…</string>
+    <string name="unlock_message_staging">Sending signed unlock data…</string>
+    <string name="unlock_message_unlocking">Unlocking the bootloader…</string>
+    <string name="unlock_error_no_data">Xiaomi did not return unlock data. Start the request again.</string>
+    <string name="unlock_error_data_rejected">The device rejected the unlock data.</string>
+    <string name="unlock_error_command_rejected">The device rejected the unlock command.</string>
+    <string name="unlock_phase_requesting">Requesting server approval</string>
+    <string name="unlock_refreshing_nonce">The unlock request expired. Requesting a fresh nonce from Xiaomi…</string>
+    <string name="unlock_phase_staging">Sending signed unlock data</string>
+    <string name="unlock_phase_unlocking">Unlocking the bootloader</string>
+    <string name="unlock_phase_success">Bootloader unlocked</string>
+    <string name="unlock_phase_error">Unlock did not complete</string>
+    <string name="unlock_default_instruction">Keep the OTG cable connected until the process finishes.</string>
+    <string name="unlock_step_1_title">Server approval</string>
+    <string name="unlock_step_1_desc">Xiaomi checks the account, device token, region, waiting period, and quota.</string>
+    <string name="unlock_step_2_title">Stage unlock data</string>
+    <string name="unlock_step_2_desc">The signed unlock token is written to the device over USB fastboot.</string>
+    <string name="unlock_step_3_title">Run oem unlock</string>
+    <string name="unlock_step_3_desc">The bootloader applies the token and may erase all data.</string>
+    <string name="unlock_warning_disconnect">Do not unplug the cable, close the app, or power off either device during this process.</string>
+    <string name="unlock_confirm_on_device">If the phone shows an unlock confirmation prompt, use the volume keys to choose Unlock/Yes and press the power button to confirm.</string>
+    <string name="unlock_error_code_format">Xiaomi error code: %1$d</string>
+    <string name="unlock_error_note">No automatic retry was attempted. Review the error, then go back and start again when the issue is resolved.</string>
+    <string name="unlock_success_verified">Bootloader unlocked and verified. The device now reports its bootloader as unlocked.</string>
+    <string name="unlock_success_unverified">The unlock command was accepted. The device rebooted or disconnected before its lock state could be re-read, so verification was not possible. Check the boot screen: an unlocked bootloader usually shows a warning before Android starts.</string>
+    <string name="unlock_result_still_locked">The device still reports its bootloader as locked. Some models wait for confirmation on the phone: use the volume keys to choose Unlock/Yes and press the power button. After confirming, reconnect in fastboot mode and check the lock state again. Do not repeat the server request until you have checked.</string>
+
+    <!-- Result -->
+    <string name="result_title">Result</string>
+    <string name="result_success_title">Unlock request completed</string>
+    <string name="result_error_title">Unlock not completed</string>
+    <string name="result_success_desc_default">The bootloader accepted Xiaomi\'s unlock token. The device may reboot and erase all user data.</string>
+    <string name="result_error_desc_default">The unlock sequence stopped before completion.</string>
+    <string name="result_device">Device</string>
+    <string name="result_account">Account</string>
+    <string name="result_error_code">Xiaomi error code</string>
+    <string name="result_error_code_none">Not returned by server</string>
+    <string name="result_success_note">Do not relock the bootloader unless you are on a fully stock, verified ROM. Xiaomi\'s server does not need to be contacted again for this device.</string>
+    <string name="result_error_note">No automatic retry was made. Fix the account, network, or device issue described above, then run the unlock again. Repeated rejected requests can extend the waiting period.</string>
+    <string name="result_btn_done">Done</string>
+    <string name="result_btn_guide">Guide</string>
+
+    <!-- Guide -->
+    <string name="guide_title">Unlock guide</string>
+    <string name="guide_warning">This is an unofficial client. Xiaomi\'s server remains the authority and can require a waiting period, Community authorization, or a quota before it signs the unlock token.</string>
+    <string name="guide_official_links">Official links</string>
+    <string name="guide_official_page">Official Mi Unlock page</string>
+    <string name="guide_step_1_title">Enable Developer options</string>
+    <string name="guide_step_1_body">Open Settings &gt; About phone and tap the MIUI or HyperOS version seven times.</string>
+    <string name="guide_step_2_title">Enable OEM unlocking</string>
+    <string name="guide_step_2_body">Open Settings &gt; Additional settings &gt; Developer options and enable OEM unlocking.</string>
+    <string name="guide_step_3_title">Bind your Xiaomi account</string>
+    <string name="guide_step_3_body">In Developer options, open Mi Unlock status, agree to the notice, and tap Add account and device. Use the same account you will sign in with here.</string>
+    <string name="guide_step_4_title">Apply in Mi Community (HyperOS)</string>
+    <string name="guide_step_4_body">HyperOS devices may require an eligible Mi Community level and an unlock authorization before the server accepts the request. Follow the current Xiaomi policy shown in the Community app.</string>
+    <string name="guide_step_5_title">Wait for the server window</string>
+    <string name="guide_step_5_body">Xiaomi may enforce a waiting period, a monthly token limit, and a yearly device limit. This app cannot bypass those checks. Keep the account bound to the device while you wait.</string>
+    <string name="guide_step_6_title">Back up and charge</string>
+    <string name="guide_step_6_body">Unlocking usually erases all data and may void the warranty. Back up first and keep the phone above 50% battery.</string>
+    <string name="guide_step_7_title">Connect the phone in fastboot</string>
+    <string name="guide_step_7_body">Power off the Xiaomi phone, hold Volume Down + Power, then connect it to this Android host with an OTG cable. Tap Start Unlock and follow the screens.</string>
+    <string name="guide_btn_completed">I have completed the steps</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_session_section">Session</string>
+    <string name="settings_session_no_account">No Xiaomi account is signed in.</string>
+    <string name="settings_session_signed_in">Signed in as account %1$s.</string>
+    <string name="settings_session_storage_desc">The session is saved on this device. You can sign out at any time to clear cookies and saved session data.</string>
+    <string name="settings_btn_sign_out">Sign out and clear session</string>
+    <string name="settings_diagnostics_section">Diagnostics</string>
+    <string name="settings_btn_inspect_usb">Inspect USB devices</string>
+    <string name="settings_about_section">About</string>
+    <string name="settings_about_version">Bootloader Studio %1$s</string>
+    <string name="settings_about_desc">An unofficial, open client for Xiaomi bootloader unlock. It follows the same server-authorized procedure as Xiaomi\'s official Windows Mi Unlock tool and does not bypass account, region, waiting-period, quota, or Community requirements.</string>
+    <string name="settings_trademark_desc">Not affiliated with, endorsed by, or supported by Xiaomi. Xiaomi, Redmi, POCO, MIUI, HyperOS, and Mi Unlock are trademarks of Xiaomi Inc.</string>
+    <string name="settings_btn_official_page">Official Mi Unlock page</string>
+    <string name="settings_warning_risk">Unlocking the bootloader can erase all data, void the warranty, and reduce device security. Use this app at your own risk.</string>
+    <string name="settings_credits">Signing logic is based on the Apache-2.0 licensed MiTools reference implementation. Fastboot communication uses Android USB Host APIs. No Xiaomi source code or proprietary binaries are bundled.</string>
+    <string name="settings_logout_dialog_title">Sign out?</string>
+    <string name="settings_logout_dialog_desc">The Xiaomi session and login cookies will be removed from this app. You can sign in again at any time.</string>
+    <string name="settings_btn_dialog_sign_out">Sign out</string>
+</resources>

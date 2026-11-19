@@ -1,0 +1,20 @@
+package dev.bootloaderstudio.app.xiaomi
+
+data class XiaomiSession(
+    val passToken: String,
+    val deviceId: String,
+    val userId: String,
+    val region: String? = null,
+    val host: String? = null,
+    val ssecurity: String? = null,
+    val serviceToken: String? = null,
+    val resolvedAt: Long? = null
+)
+
+data class XiaomiAccount(
+    val userId: String,
+    val region: String,
+    val host: String,
+    val ssecurity: String,
+    val serviceToken: String
+)

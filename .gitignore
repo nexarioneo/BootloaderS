@@ -1,0 +1,26 @@
+# Gradle
+.gradle/
+build/
+app/build/
+.kotlin/
+
+# Local configuration
+local.properties
+*.iml
+.idea/
+
+# Android
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Third-party reference material
+reference/
+
+# OS
+.DS_Store
+Thumbs.db

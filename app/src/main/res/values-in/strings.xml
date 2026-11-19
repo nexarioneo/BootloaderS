@@ -1,0 +1,309 @@
+<resources>
+    <string name="app_name">Bootloader Studio</string>
+
+    <!-- Common -->
+    <string name="btn_back">Kembali</string>
+    <string name="btn_retry">Coba Lagi</string>
+    <string name="btn_continue">Lanjutkan</string>
+    <string name="btn_close">Tutup</string>
+    <string name="btn_refresh">Segarkan</string>
+    <string name="btn_cancel">Batal</string>
+    <string name="btn_done">Selesai</string>
+    <string name="unknown">Tidak Diketahui</string>
+
+    <!-- Errors -->
+    <string name="error_account_or_device_missing">Informasi akun atau perangkat tidak tersedia. Kembali dan mulai lagi.</string>
+    <string name="error_unlock_not_prepared">Permintaan unlock belum disiapkan. Jalankan pemeriksaan kelayakan terlebih dahulu.</string>
+    <string name="error_device_id_missing">Sesi Xiaomi tidak memiliki ID perangkat. Masuk lagi sebelum meminta unlock.</string>
+    <string name="error_network">Kesalahan jaringan. Periksa koneksi Anda dan coba lagi.</string>
+    <string name="error_unknown">Kesalahan tidak diketahui. Coba lagi nanti.</string>
+    <string name="error_server_detail_prefix">Detail server: </string>
+    <string name="error_code_prefix">Kode: </string>
+
+    <!-- Xiaomi server error messages (official Mi Unlock wording) -->
+    <string name="xiaomi_error_10000_official">Kesalahan parameter permintaan</string>
+    <string name="xiaomi_error_10000_guidance">Periksa sesi akun, sambungkan kembali ponsel dalam mode fastboot, lalu mulai permintaan lagi.</string>
+    <string name="xiaomi_error_10001_official">Verifikasi tanda tangan gagal</string>
+    <string name="xiaomi_error_10001_guidance">Masuk lagi dengan akun yang terikat ke perangkat. Jika masih gagal, gunakan alat Mi Unlock resmi.</string>
+    <string name="xiaomi_error_10002_official">Permintaan dari IP yang sama terlalu sering</string>
+    <string name="xiaomi_error_10002_guidance">Xiaomi sedang membatasi laju jaringan ini. Tunggu sebelum mencoba lagi; aplikasi tidak akan mencoba ulang secara otomatis.</string>
+    <string name="xiaomi_error_10003_official">Kesalahan internal server</string>
+    <string name="xiaomi_error_10003_guidance">Server Xiaomi mengalami kesalahan internal. Coba lagi nanti. Tidak ada percobaan ulang otomatis.</string>
+    <string name="xiaomi_error_10004_official">Permintaan telah kedaluwarsa</string>
+    <string name="xiaomi_error_10004_guidance">Permintaan kedaluwarsa sebelum Xiaomi memprosesnya. Kembali ke layar tinjauan dan minta nonce baru.</string>
+    <string name="xiaomi_error_10005_official">Permintaan nonce tidak valid</string>
+    <string name="xiaomi_error_10005_guidance">Nonce unlock ditolak. Kembali ke layar tinjauan dan minta nonce baru.</string>
+    <string name="xiaomi_error_10006_official">Versi klien terlalu rendah</string>
+    <string name="xiaomi_error_10006_guidance">Xiaomi tidak lagi menerima versi klien ini. Perbarui aplikasi saat versi yang lebih baru tersedia.</string>
+    <string name="xiaomi_error_10013_guidance">Perangkat belum diaktifkan atau data aktivitasnya tidak lengkap. Periksa pengikatan akun dan jaringan, lalu coba lagi setelah masa tunggu yang diperlukan.</string>
+    <string name="xiaomi_error_10023_guidance">Akun ini telah mencapai batas unlock perangkat. Gunakan akun yang memenuhi kebijakan batas Xiaomi saat ini.</string>
+    <string name="xiaomi_error_20030_official">Anda harus menunggu setidaknya 30 hari untuk membuka perangkat lain</string>
+    <string name="xiaomi_error_20030_guidance">Server memberlakukan jendela 30 hari antar unlock. Biarkan akun tetap terikat ke perangkat dan tunggu hingga jendela tersebut berlalu.</string>
+    <string name="xiaomi_error_20031_official">Tambahkan akun dan perangkat Anda di Pengaturan MIUI > Opsi pengembang > Status Mi Unlock</string>
+    <string name="xiaomi_error_20031_guidance">Ikat akun yang sama di ponsel: Pengaturan > Pengaturan tambahan > Opsi pengembang > Status Mi Unlock > Tambahkan akun dan perangkat.</string>
+    <string name="xiaomi_error_20032_official">Gagal membuat nilai tanda tangan yang diperlukan untuk membuka kunci</string>
+    <string name="xiaomi_error_20032_guidance">Coba lagi nanti. Jika error berlanjut, gunakan alat Mi Unlock resmi.</string>
+    <string name="xiaomi_error_20033_official">Skor profil pengguna terlalu rendah atau masuk daftar hitam</string>
+    <string name="xiaomi_error_20033_guidance">Pemeriksaan risiko/kelayakan akun Xiaomi gagal. Aplikasi tidak dapat melewati ini; gunakan akun yang berstatus baik.</string>
+    <string name="xiaomi_error_20034_official">Akun saat ini tidak dapat membuka kunci perangkat ini</string>
+    <string name="xiaomi_error_20034_guidance">Pastikan akun ini terikat ke perangkat yang tepat ini. Akun lain tidak dapat membuka kuncinya.</string>
+    <string name="xiaomi_error_20035_official">Buka unlock.update.miui.com untuk mengunduh versi terbaru</string>
+    <string name="xiaomi_error_20035_guidance">Unduh versi Mi Unlock resmi terbaru, lalu coba lagi.</string>
+    <string name="xiaomi_error_20036_official">Masa tunggu unlock belum selesai</string>
+    <string name="xiaomi_error_20036_guidance">Masa tunggu masih aktif. Biarkan akun tetap terikat ke perangkat dan coba lagi setelah waktu yang ditampilkan Xiaomi.</string>
+    <string name="xiaomi_error_20037_official">Jumlah unlock telah mencapai batas maksimum</string>
+    <string name="xiaomi_error_20037_guidance">Akun telah mencapai batas unlock. Tunggu jendela kuota berikutnya.</string>
+    <string name="xiaomi_error_20038_guidance">Perangkat terkunci ke akun Xiaomi lain. Masuk dengan akun tersebut, nonaktifkan Temukan Perangkat, lalu coba lagi.</string>
+    <string name="xiaomi_error_20039_guidance">Token perangkat tidak lengkap. Sambungkan kembali ponsel dalam mode fastboot dan mulai lagi.</string>
+    <string name="xiaomi_error_20040_official">Anda harus menggunakan perangkat untuk jangka waktu tertentu sebelum membuka kuncinya</string>
+    <string name="xiaomi_error_20040_guidance">Gunakan perangkat secara normal selama periode yang diperlukan sebelum meminta unlock.</string>
+    <string name="xiaomi_error_20041_guidance">Tambahkan nomor telepon ke akun Xiaomi, lalu coba lagi.</string>
+    <string name="xiaomi_error_20045_guidance">Wilayah akun dan wilayah perangkat tidak cocok. Gunakan akun dari wilayah perangkat.</string>
+    <string name="xiaomi_error_30002_guidance">Ajukan otorisasi unlock bootloader di Mi Community, lalu coba lagi.</string>
+
+    <!-- Dialogs -->
+    <string name="usb_host_required_title">Memerlukan USB Host</string>
+    <string name="usb_host_required_desc">Perangkat Android ini tidak dapat bertindak sebagai USB host, sehingga tidak dapat berkomunikasi dengan ponsel Xiaomi dalam mode fastboot. Anda tetap dapat membaca panduan, namun fitur unlock dan flash tidak tersedia di perangkat ini.</string>
+    <string name="usb_host_open_guide">Buka Panduan</string>
+    <string name="usb_diag_title">Diagnostik USB</string>
+    <string name="usb_diag_no_devices">Tidak ada perangkat USB yang terhubung. Hubungkan ponsel Xiaomi dalam mode fastboot dengan kabel OTG, lalu segarkan.</string>
+
+    <!-- Home -->
+    <string name="home_badge_unofficial">ALAT TIDAK RESMI</string>
+    <string name="home_hero_desc">Buka bootloader dan flash perangkat Xiaomi langsung dari perangkat Android.</string>
+    <string name="home_tool_unlock_title">Buka bootloader</string>
+    <string name="home_tool_unlock_desc_no_host">USB host (OTG) tidak tersedia di perangkat ini.</string>
+    <string name="home_tool_unlock_desc_ready">Akun siap: ID %1$s</string>
+    <string name="home_tool_unlock_desc_default">Buka bootloader terotorisasi server resmi untuk Xiaomi, Redmi, dan POCO.</string>
+    <string name="home_tool_unlock_badge_ready">Siap</string>
+    <string name="home_tool_miflash_title">Mi Flash</string>
+    <string name="home_tool_miflash_desc">Flash ROM fastboot.</string>
+    <string name="home_tool_assistant_title">Mi Assistant</string>
+    <string name="home_tool_assistant_desc">Alat Recovery dan ROM.</string>
+    <string name="home_tool_soon">Segera</string>
+    <string name="home_otg_hint">Jalankan aplikasi ini di perangkat Android kedua dengan kabel OTG. Ponsel yang akan di-unlock tetap berada dalam mode fastboot.</string>
+    <string name="home_disclaimer_title">Tidak berafiliasi dengan Xiaomi</string>
+    <string name="home_disclaimer_desc">Alat tidak resmi. Membuka bootloader dapat menghapus seluruh data, membatalkan garansi, dan menurunkan keamanan perangkat. Server Xiaomi yang memutuskan kelayakan akun dan perangkat Anda.</string>
+    <string name="home_btn_guide">Panduan</string>
+    <string name="home_btn_settings">Pengaturan</string>
+
+    <!-- Login -->
+    <string name="login_title">Login Akun Xiaomi</string>
+    <string name="login_clear_cookies">Bersihkan cookie</string>
+    <string name="login_cookies_cleared">Cookie login dibersihkan</string>
+    <string name="login_hero_title">Hubungkan Akun Xiaomi</string>
+    <string name="login_hero_desc">Otorisasi akun dari server resmi Xiaomi diperlukan untuk membuka kunci bootloader.</string>
+    <string name="login_active_session_title">Sesi Akun Aktif</string>
+    <string name="login_active_session_desc">Akun telah terhubung dan siap digunakan.</string>
+    <string name="login_label_account_id">ID Akun</string>
+    <string name="login_label_status">Status</string>
+    <string name="login_status_authorized">Terotorisasi</string>
+    <string name="login_btn_continue_as">Lanjutkan sebagai Akun %1$s</string>
+    <string name="login_btn_switch_account">Ganti dengan Akun Lain</string>
+    <string name="login_not_logged_in_title">Belum Masuk Akun</string>
+    <string name="login_not_logged_in_desc">Tekan tombol di bawah untuk membuka halaman login resmi Xiaomi di jendela WebView terisolasi yang aman.</string>
+    <string name="login_btn_sign_in">Masuk Akun Xiaomi</string>
+    <string name="login_how_it_works_title">Cara Kerja Otorisasi</string>
+    <string name="login_step_1_title">Login Resmi Xiaomi</string>
+    <string name="login_step_1_desc">Anda memasukkan info masuk langsung di account.xiaomi.com. Sandi Anda tidak pernah disimpan atau dibaca oleh aplikasi ini.</string>
+    <string name="login_step_2_title">Ekstraksi Token Keamanan</string>
+    <string name="login_step_2_desc">Aplikasi menangkap token otorisasi STS sementara dan pengidentifikasi perangkat untuk berkomunikasi dengan API unlock Xiaomi.</string>
+    <string name="login_step_3_title">Validasi Server Resmi</string>
+    <string name="login_step_3_desc">Server Xiaomi memverifikasi kelayakan akun, waktu binding, dan izin unlock sebelum menandatangani token unlock.</string>
+    <string name="login_security_note_title">Keamanan &amp; Privasi</string>
+    <string name="login_security_note_desc">Info masuk Anda dikirim langsung ke Xiaomi melalui TLS. Hanya cookie sesi sementara yang disimpan untuk menandatangani permintaan unlock.</string>
+    <string name="login_sec_item1_title">Otentikasi Server Resmi</string>
+    <string name="login_sec_item1_desc">Login diproses langsung pada server resmi Xiaomi (account.xiaomi.com) tanpa perantara server pihak ketiga.</string>
+    <string name="login_sec_item2_title">Token Terenkripsi (HttpOnly)</string>
+    <string name="login_sec_item2_desc">Aplikasi hanya mengambil token sesi sementara untuk otorisasi fastboot unlock; kata sandi Anda tidak pernah disimpan.</string>
+    <string name="login_sec_item3_title">Kendali Penuh di Tangan Anda</string>
+    <string name="login_sec_item3_desc">Data sesi dan cookie dapat Anda bersihkan sewaktu-waktu melalui tombol bersihkan di kanan atas.</string>
+    <string name="login_req_title">Persyaratan Otorisasi Xiaomi</string>
+    <string name="login_req_1_title">Tautkan Akun di Perangkat</string>
+    <string name="login_req_1_desc">Akun harus ditautkan ke HP target melalui menu Pengaturan Pengembang &gt; Status Mi Unlock menggunakan data seluler.</string>
+    <string name="login_req_2_title">Patuhi Masa Tunggu Resmi</string>
+    <string name="login_req_2_desc">Server Xiaomi menetapkan masa tunggu (biasanya 72 jam atau 168 jam) sebelum izin unlock diberikan.</string>
+    <string name="login_req_3_title">Siapkan Kabel USB OTG</string>
+    <string name="login_req_3_desc">Hubungkan HP target dalam mode Fastboot ke HP host ini menggunakan kabel data / adaptor OTG yang stabil.</string>
+    <string name="login_disclaimer">Catatan: Bootloader Studio adalah perangkat lunak independen dan tidak berafiliasi dengan Xiaomi Inc. Otorisasi unlock tunduk pada ketentuan server resmi Xiaomi.</string>
+    <string name="login_open_browser">Buka di browser</string>
+
+    <!-- WebView & Success Dialog -->
+    <string name="webview_menu_reload">Muat ulang halaman</string>
+    <string name="webview_menu_open_external">Buka di browser eksternal</string>
+    <string name="webview_menu_copy_link">Salin tautan</string>
+    <string name="webview_menu_clear_cache">Hapus cookie &amp; cache</string>
+    <string name="webview_toast_link_copied">Tautan disalin ke papan klip</string>
+    <string name="webview_toast_cache_cleared">Cookie dan cache dibersihkan</string>
+    <string name="webview_error_title">Gagal Memuat Halaman</string>
+    <string name="webview_error_open_browser">Buka Browser</string>
+    <string name="webview_error_retry">Coba Lagi</string>
+    <string name="webview_error_format">Gagal memuat halaman: %1$s (kode %2$d)</string>
+    <string name="webview_nav_back">Kembali</string>
+    <string name="webview_nav_reload">Muat Ulang</string>
+    <string name="webview_nav_menu">Menu Opsi</string>
+    <string name="login_success_title">Login Berhasil</string>
+    <string name="login_success_desc">Sesi akun Xiaomi berhasil diverifikasi. Mengalihkan ke menu akun…</string>
+    <string name="login_success_continue">Lanjutkan</string>
+    <string name="login_save_failed_title">Gagal menyimpan sesi</string>
+    <string name="login_save_failed_desc">Login Xiaomi selesai, tetapi cookie sesi yang diperlukan tidak dapat dibaca. Pindai halaman lagi, atau kembali dan masuk ulang.</string>
+    <string name="login_save_failed_retry">Pindai lagi</string>
+
+    <!-- Account -->
+    <string name="account_title">Akun Xiaomi</string>
+    <string name="account_loading">Menghubungi layanan akun Xiaomi…</string>
+    <string name="account_session_ready">Sesi siap</string>
+    <string name="account_id">ID Akun</string>
+    <string name="account_region">Wilayah</string>
+    <string name="account_unlock_server">Server unlock</string>
+    <string name="account_security_desc">Sandi Anda hanya dimasukkan di halaman login resmi Xiaomi. Aplikasi ini menyimpan sesi di memori dan mengirim permintaan unlock langsung ke server Xiaomi.</string>
+    <string name="account_btn_continue">Lanjutkan ke perangkat</string>
+    <string name="account_btn_switch">Ganti Akun</string>
+    <string name="account_no_session">Sesi Xiaomi tidak tersedia. Silakan kembali dan masuk lagi.</string>
+    <string name="account_session_expired">Sesi Xiaomi Anda telah berakhir. Masuk lagi untuk melanjutkan.</string>
+    <string name="account_btn_relogin">Masuk Ulang</string>
+    <string name="account_server_decision_note">Server Xiaomi yang menentukan apakah akun dan perangkat ini memenuhi syarat. Masa tunggu, otorisasi Komunitas, atau kuota mungkin masih berlaku.</string>
+
+    <!-- Device -->
+    <string name="device_title">Hubungkan perangkat</string>
+    <string name="device_fastboot_card_title">Masuk ke mode fastboot</string>
+    <string name="device_fastboot_card_desc">Matikan ponsel Xiaomi, tekan dan tahan Volume Bawah + Daya, lalu hubungkan ke host Android ini dengan kabel OTG.</string>
+    <string name="device_idle_text">Deteksi perangkat tidak aktif. Ketuk Coba Lagi untuk memulai kembali.</string>
+    <string name="device_start_detection">Mulai deteksi</string>
+    <string name="device_state_waiting">Menunggu perangkat</string>
+    <string name="device_state_permission">Izin USB</string>
+    <string name="device_state_reading">Membaca perangkat</string>
+    <string name="device_keep_cable">Biarkan kabel OTG tetap terhubung.</string>
+    <string name="device_detected_title">Perangkat terdeteksi</string>
+    <string name="device_codename">Nama kode</string>
+    <string name="device_bootloader">Bootloader</string>
+    <string name="device_token">Token perangkat</string>
+    <string name="device_already_unlocked">Sudah terbuka</string>
+    <string name="device_locked">Terkunci</string>
+    <string name="device_already_unlocked_desc">Perangkat ini sudah terbuka (unlocked). Tidak perlu membuka lagi.</string>
+    <string name="device_btn_continue">Lanjutkan</string>
+    <string name="device_error_default">Tidak dapat berkomunikasi dengan perangkat.</string>
+    <string name="device_permission_denied">Izin USB ditolak. Sambungkan ulang kabel OTG atau ketuk Coba Lagi untuk meminta izin kembali. Aplikasi tidak akan terus memunculkan permintaan secara otomatis.</string>
+    <string name="device_btn_retry">Coba Lagi</string>
+    <string name="device_btn_refresh">Segarkan deteksi</string>
+    <string name="device_btn_diagnostics">Diagnostik USB</string>
+    <string name="device_hub_note">Beberapa perangkat memerlukan hub OTG berdaya. Gunakan kabel data yang berkualitas baik dan biarkan layar menyala hingga proses selesai.</string>
+    <string name="device_error_no_usb_host">Perangkat Android ini tidak mendukung mode USB host.</string>
+    <string name="device_waiting_hint">Hubungkan ponsel dalam mode fastboot dengan kabel OTG.</string>
+    <string name="device_permission_hint">Izinkan akses USB untuk perangkat yang terhubung.</string>
+    <string name="device_reading_hint">Membaca informasi perangkat…</string>
+    <string name="device_slow_read_hint">Masih membaca perangkat. Beberapa ponsel membutuhkan beberapa detik untuk menjawab perintah fastboot.</string>
+    <string name="device_error_timeout">Perangkat tidak merespons tepat waktu. Biarkan kabel OTG terhubung dan ketuk Segarkan atau Coba Lagi.</string>
+    <string name="device_error_disconnected">Perangkat terputus selama komunikasi USB. Sambungkan kembali kabel OTG dan ketuk Segarkan.</string>
+    <string name="device_error_changed">Perangkat lain terhubung. Ketuk Segarkan untuk mendeteksinya lagi sebelum melanjutkan.</string>
+    <string name="device_error_token_changed">Token perangkat berubah. Ketuk Segarkan dan mulai ulang proses unlock dari awal.</string>
+    <string name="device_error_token_missing">Tidak dapat membaca token perangkat. Sambungkan kembali ponsel dalam mode fastboot dan ketuk Segarkan.</string>
+    <string name="device_error_token_reread">Tidak dapat membaca ulang token perangkat. Sambungkan kembali ponsel dalam mode fastboot dan mulai ulang proses.</string>
+    <string name="device_error_open">Tidak dapat membuka perangkat USB. Sambungkan kembali kabel OTG dan ketuk Segarkan.</string>
+    <string name="device_error_product_missing">Tidak dapat membaca nama kode perangkat. Sambungkan kembali ponsel dalam mode fastboot.</string>
+    <string name="device_error_permission_denied">Izin USB ditolak. Sambungkan kembali kabel OTG atau ketuk Coba Lagi.</string>
+
+    <!-- Preflight -->
+    <string name="preflight_title">Tinjau unlock</string>
+    <string name="preflight_card_title">Permintaan unlock</string>
+    <string name="preflight_account">Akun</string>
+    <string name="preflight_region">Wilayah</string>
+    <string name="preflight_device">Perangkat</string>
+    <string name="preflight_server">Server unlock</string>
+    <string name="preflight_warning">Membuka bootloader biasanya menghapus seluruh data pengguna dan dapat membatalkan garansi. Cadangkan ponsel Anda sebelum melanjutkan.</string>
+    <string name="preflight_checking">Memeriksa kelayakan akun dan perangkat ke Xiaomi…</string>
+    <string name="preflight_retry_check">Coba lagi pemeriksaan kelayakan</string>
+    <string name="preflight_notice_title">Pemberitahuan server Xiaomi</string>
+    <string name="preflight_data_will_erase">Perangkat ini akan menghapus data pengguna saat di-unlock.</string>
+    <string name="preflight_data_no_erase">Perangkat ini tidak menghapus data pengguna saat di-unlock.</string>
+    <string name="preflight_data_unknown">Perilaku penghapusan data tidak dilaporkan oleh server.</string>
+    <string name="preflight_confirm_checkbox">Saya memahami risikonya dan ingin meminta unlock.</string>
+    <string name="preflight_btn_request">Minta Unlock</string>
+    <string name="preflight_footer_note">Aplikasi ini mengirim permintaan terotorisasi server yang sama seperti alat Windows resmi Xiaomi. Tidak dapat melewati masa tunggu, kuota, atau otorisasi Komunitas.</string>
+
+    <!-- Unlock -->
+    <string name="unlock_title">Membuka Bootloader</string>
+    <string name="unlock_phase_idle">Menyiapkan permintaan unlock…</string>
+    <string name="unlock_message_requesting">Meminta persetujuan server…</string>
+    <string name="unlock_message_staging">Mengirim data unlock bertanda tangan…</string>
+    <string name="unlock_message_unlocking">Membuka kunci bootloader…</string>
+    <string name="unlock_error_no_data">Xiaomi tidak mengembalikan data unlock. Mulai permintaan lagi.</string>
+    <string name="unlock_error_data_rejected">Perangkat menolak data unlock.</string>
+    <string name="unlock_error_command_rejected">Perangkat menolak perintah unlock.</string>
+    <string name="unlock_phase_requesting">Meminta persetujuan server</string>
+    <string name="unlock_refreshing_nonce">Permintaan unlock kedaluwarsa. Meminta nonce baru dari Xiaomi…</string>
+    <string name="unlock_phase_staging">Mengirim data unlock bertanda tangan</string>
+    <string name="unlock_phase_unlocking">Membuka kunci bootloader</string>
+    <string name="unlock_phase_success">Bootloader berhasil dibuka</string>
+    <string name="unlock_phase_error">Unlock tidak selesai</string>
+    <string name="unlock_default_instruction">Biarkan kabel OTG tetap terhubung hingga proses selesai.</string>
+    <string name="unlock_step_1_title">Persetujuan server</string>
+    <string name="unlock_step_1_desc">Xiaomi memeriksa akun, token perangkat, wilayah, masa tunggu, dan kuota.</string>
+    <string name="unlock_step_2_title">Kirim data unlock</string>
+    <string name="unlock_step_2_desc">Token unlock bertanda tangan ditulis ke perangkat melalui USB fastboot.</string>
+    <string name="unlock_step_3_title">Jalankan oem unlock</string>
+    <string name="unlock_step_3_desc">Bootloader menerapkan token dan dapat menghapus seluruh data.</string>
+    <string name="unlock_warning_disconnect">Jangan mencabut kabel, menutup aplikasi, atau mematikan perangkat selama proses ini.</string>
+    <string name="unlock_confirm_on_device">Jika ponsel menampilkan konfirmasi unlock, gunakan tombol volume untuk memilih Unlock/Ya dan tekan tombol daya untuk mengonfirmasi.</string>
+    <string name="unlock_error_code_format">Kode error Xiaomi: %1$d</string>
+    <string name="unlock_error_note">Tidak ada percobaan ulang otomatis. Tinjau error tersebut, lalu kembali dan mulai lagi setelah masalah teratasi.</string>
+    <string name="unlock_success_verified">Bootloader berhasil dibuka dan terverifikasi. Perangkat kini melaporkan bootloader dalam keadaan terbuka.</string>
+    <string name="unlock_success_unverified">Perintah unlock diterima. Perangkat melakukan boot ulang atau terputus sebelum status kuncinya dapat dibaca ulang, sehingga verifikasi tidak dapat dilakukan. Periksa layar boot: bootloader yang terbuka biasanya menampilkan peringatan sebelum Android menyala.</string>
+    <string name="unlock_result_still_locked">Perangkat masih melaporkan bootloader terkunci. Beberapa model menunggu konfirmasi di ponsel: gunakan tombol volume untuk memilih Unlock/Ya dan tekan tombol daya. Setelah konfirmasi, sambungkan kembali dalam mode fastboot dan periksa status kunci lagi. Jangan mengulang permintaan server sebelum memeriksanya.</string>
+
+    <!-- Result -->
+    <string name="result_title">Hasil</string>
+    <string name="result_success_title">Permintaan unlock selesai</string>
+    <string name="result_error_title">Unlock belum selesai</string>
+    <string name="result_success_desc_default">Bootloader menerima token unlock Xiaomi. Perangkat mungkin melakukan boot ulang dan menghapus seluruh data pengguna.</string>
+    <string name="result_error_desc_default">Urutan unlock berhenti sebelum selesai.</string>
+    <string name="result_device">Perangkat</string>
+    <string name="result_account">Akun</string>
+    <string name="result_error_code">Kode error Xiaomi</string>
+    <string name="result_error_code_none">Tidak dikembalikan oleh server</string>
+    <string name="result_success_note">Jangan mengunci kembali bootloader kecuali Anda menggunakan ROM resmi dan terverifikasi penuh. Server Xiaomi tidak perlu dihubungi lagi untuk perangkat ini.</string>
+    <string name="result_error_note">Tidak ada percobaan ulang otomatis. Perbaiki masalah akun, jaringan, atau perangkat yang dijelaskan di atas, lalu jalankan unlock lagi. Permintaan yang ditolak berulang kali dapat memperpanjang masa tunggu.</string>
+    <string name="result_btn_done">Selesai</string>
+    <string name="result_btn_guide">Panduan</string>
+
+    <!-- Guide -->
+    <string name="guide_title">Panduan unlock</string>
+    <string name="guide_warning">Ini adalah klien tidak resmi. Server Xiaomi tetap menjadi penentu dan dapat memberlakukan masa tunggu, otorisasi Komunitas, atau kuota sebelum menandatangani token unlock.</string>
+    <string name="guide_official_links">Tautan resmi</string>
+    <string name="guide_official_page">Halaman resmi Mi Unlock</string>
+    <string name="guide_step_1_title">Aktifkan Opsi Pengembang</string>
+    <string name="guide_step_1_body">Buka Pengaturan &gt; Tentang ponsel dan ketuk versi MIUI atau HyperOS sebanyak tujuh kali.</string>
+    <string name="guide_step_2_title">Aktifkan Pembukaan kunci OEM</string>
+    <string name="guide_step_2_body">Buka Pengaturan &gt; Pengaturan tambahan &gt; Opsi pengembang dan aktifkan Pembukaan kunci OEM.</string>
+    <string name="guide_step_3_title">Hubungkan akun Xiaomi Anda</string>
+    <string name="guide_step_3_body">Di Opsi pengembang, buka Status Mi Unlock, setujui pemberitahuan, dan ketuk Tambah akun dan perangkat. Gunakan akun yang sama dengan yang Anda gunakan di sini.</string>
+    <string name="guide_step_4_title">Ajukan di Mi Community (HyperOS)</string>
+    <string name="guide_step_4_body">Perangkat HyperOS mungkin memerlukan tingkat Mi Community yang memenuhi syarat dan otorisasi unlock sebelum server menerima permintaan. Ikuti kebijakan Xiaomi yang ditampilkan di aplikasi Community.</string>
+    <string name="guide_step_5_title">Tunggu jendela waktu server</string>
+    <string name="guide_step_5_body">Xiaomi dapat memberlakukan masa tunggu, batas token bulanan, dan batas tahunan per perangkat. Aplikasi ini tidak dapat melewati pemeriksaan tersebut. Pastikan akun tetap terhubung ke perangkat selama menunggu.</string>
+    <string name="guide_step_6_title">Cadangkan dan isi daya</string>
+    <string name="guide_step_6_body">Membuka kunci biasanya menghapus semua data dan dapat membatalkan garansi. Cadangkan data terlebih dahulu dan pastikan baterai ponsel di atas 50%.</string>
+    <string name="guide_step_7_title">Hubungkan ponsel dalam fastboot</string>
+    <string name="guide_step_7_body">Matikan ponsel Xiaomi, tahan Volume Bawah + Daya, lalu hubungkan ke host Android ini dengan kabel OTG. Ketuk Buka bootloader dan ikuti petunjuk.</string>
+    <string name="guide_btn_completed">Saya telah menyelesaikan langkah-langkah di atas</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_session_section">Sesi</string>
+    <string name="settings_session_no_account">Tidak ada akun Xiaomi yang masuk.</string>
+    <string name="settings_session_signed_in">Masuk sebagai akun %1$s.</string>
+    <string name="settings_session_storage_desc">Sesi tersimpan di perangkat ini. Anda dapat keluar kapan saja untuk membersihkan cookie dan data sesi yang tersimpan.</string>
+    <string name="settings_btn_sign_out">Keluar dan hapus sesi</string>
+    <string name="settings_diagnostics_section">Diagnostik</string>
+    <string name="settings_btn_inspect_usb">Periksa perangkat USB</string>
+    <string name="settings_about_section">Tentang</string>
+    <string name="settings_about_version">Bootloader Studio %1$s</string>
+    <string name="settings_about_desc">Klien terbuka tidak resmi untuk membuka bootloader Xiaomi. Mengikuti prosedur terotorisasi server yang sama dengan alat Mi Unlock Windows resmi Xiaomi dan tidak melewati persyaratan akun, wilayah, masa tunggu, kuota, atau Komunitas.</string>
+    <string name="settings_trademark_desc">Tidak berafiliasi dengan, didukung oleh, atau terafiliasi dengan Xiaomi. Xiaomi, Redmi, POCO, MIUI, HyperOS, dan Mi Unlock adalah merek dagang Xiaomi Inc.</string>
+    <string name="settings_btn_official_page">Halaman resmi Mi Unlock</string>
+    <string name="settings_warning_risk">Membuka bootloader dapat menghapus seluruh data, membatalkan garansi, dan mengurangi keamanan perangkat. Gunakan aplikasi ini atas risiko Anda sendiri.</string>
+    <string name="settings_credits">Logika penandatanganan didasarkan pada implementasi referensi MiTools berlisensi Apache-2.0. Komunikasi fastboot menggunakan API USB Host Android. Tidak ada kode sumber atau biner milik Xiaomi yang disertakan.</string>
+    <string name="settings_logout_dialog_title">Keluar akun?</string>
+    <string name="settings_logout_dialog_desc">Sesi Xiaomi dan cookie login akan dihapus dari aplikasi ini. Anda dapat masuk kembali kapan saja.</string>
+    <string name="settings_btn_dialog_sign_out">Keluar</string>
+</resources>
