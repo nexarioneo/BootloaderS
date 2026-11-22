@@ -48,6 +48,7 @@ class XiaomiUnlockRepository(
     ): ClearResult = withContext(Dispatchers.IO) {
         val data = JSONObject().put("product", product).toString()
         val params = linkedMapOf(
+            "appId" to "1",
             "data" to data,
             "nonce" to nonce,
             "sid" to XiaomiSigner.SID
@@ -55,7 +56,7 @@ class XiaomiUnlockRepository(
         val json = send(
             account = account,
             path = "/api/v2/unlock/device/clear",
-            paramOrder = listOf("data", "nonce", "sid"),
+            paramOrder = listOf("appId", "data", "nonce", "sid"),
             params = params
         )
         ensureSuccess(json)
@@ -138,6 +139,9 @@ class XiaomiUnlockRepository(
             .build()
 
         client.newCall(request).execute().use { response ->
+            if (response.code == 401 || response.code == 403) {
+                throw XiaomiAuthException("Xiaomi rejected the unlock session.")
+            }
             if (!response.isSuccessful) {
                 throw IOException("Xiaomi unlock server returned HTTP ${response.code}.")
             }

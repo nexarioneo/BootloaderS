@@ -16,6 +16,7 @@ import dev.bootloaderstudio.app.xiaomi.XiaomiAccount
 import dev.bootloaderstudio.app.xiaomi.XiaomiApiException
 import dev.bootloaderstudio.app.xiaomi.XiaomiAuthException
 import dev.bootloaderstudio.app.xiaomi.XiaomiErrorMapper
+import dev.bootloaderstudio.app.xiaomi.XiaomiIdentityRequiredException
 import dev.bootloaderstudio.app.xiaomi.XiaomiSession
 import dev.bootloaderstudio.app.xiaomi.UnlockResult
 import kotlinx.coroutines.CancellationException
@@ -84,6 +85,8 @@ class UblViewModel(
                 account = null,
                 accountLoading = false,
                 accountError = null,
+                identityUrl = null,
+                identityCancelled = false,
                 device = null,
                 deviceState = DeviceState.Idle,
                 deviceMessage = null,
@@ -100,6 +103,7 @@ class UblViewModel(
     }
 
     fun loadAccount(force: Boolean = false) {
+        if (!force && _uiState.value.identityCancelled) return
         val session = container.sessionStore.session ?: _uiState.value.session ?: run {
             _uiState.update {
                 it.copy(accountError = container.stringProvider.getString(R.string.account_no_session))
@@ -114,7 +118,13 @@ class UblViewModel(
         if (accountJob?.isActive == true) return
 
         accountJob = viewModelScope.launch {
-            _uiState.update { it.copy(accountLoading = true, accountError = null) }
+            _uiState.update {
+                it.copy(
+                    accountLoading = true,
+                    accountError = null,
+                    identityCancelled = false
+                )
+            }
             try {
                 val account = resolveAccountWithRecovery(session)
                 val resolvedSession = persistResolvedAccount(account)
@@ -128,6 +138,8 @@ class UblViewModel(
                 }
             } catch (error: CancellationException) {
                 throw error
+            } catch (error: XiaomiIdentityRequiredException) {
+                requestIdentityVerification(error)
             } catch (error: SessionExpiredException) {
                 clearSessionAfterExpiry()
                 _uiState.update {
@@ -440,10 +452,20 @@ class UblViewModel(
                             }
                             else -> throw error
                         }
+                    } catch (error: XiaomiAuthException) {
+                        // The unlock endpoints answer 401/403 when the service
+                        // token has been invalidated. Resolve the account once
+                        // more before giving up on the session.
+                        if (authRetried) throw error
+                        authRetried = true
+                        account = refreshAccountAfterAuthError()
                     }
                 }
             } catch (error: CancellationException) {
                 throw error
+            } catch (error: XiaomiIdentityRequiredException) {
+                cachedPreflight = null
+                requestIdentityVerification(error)
             } catch (error: SessionExpiredException) {
                 clearSessionAfterExpiry()
                 cachedPreflight = null
@@ -607,6 +629,10 @@ class UblViewModel(
                             }
                             else -> throw error
                         }
+                    } catch (error: XiaomiAuthException) {
+                        if (authRetried) throw error
+                        authRetried = true
+                        activeAccount = refreshAccountAfterAuthError()
                     }
                 }
 
@@ -756,6 +782,8 @@ class UblViewModel(
                 }
             } catch (error: CancellationException) {
                 throw error
+            } catch (error: XiaomiIdentityRequiredException) {
+                requestIdentityVerification(error)
             } catch (error: SessionExpiredException) {
                 clearSessionAfterExpiry()
                 _uiState.update {
@@ -796,6 +824,78 @@ class UblViewModel(
         container.sessionStore.clear()
         container.cookieCleaner.clearCookies()
         _uiState.value = UblUiState()
+    }
+
+    /**
+     * Called after the identity WebView reaches Xiaomi's STS success page.
+     * The passToken may have been rotated during verification, so refresh it
+     * from the cookies the WebView just observed before resolving the account
+     * again. The session itself is still valid; only the derived unlock
+     * credentials are discarded.
+     */
+    fun onIdentityVerified(session: XiaomiSession? = null) {
+        accountJob?.cancel()
+        accountJob = null
+        preflightJob?.cancel()
+        preflightJob = null
+        unlockJob?.cancel()
+        unlockJob = null
+        nonce = null
+        cachedPreflight = null
+
+        if (session != null) {
+            container.sessionStore.update { stored ->
+                stored.copy(
+                    passToken = session.passToken.ifBlank { stored.passToken },
+                    deviceId = session.deviceId.ifBlank { stored.deviceId },
+                    userId = session.userId.ifBlank { stored.userId },
+                    ssecurity = null,
+                    serviceToken = null,
+                    resolvedAt = null,
+                    cookies = stored.cookies + session.cookies
+                )
+            }
+        } else {
+            container.sessionStore.update {
+                it.copy(ssecurity = null, serviceToken = null, resolvedAt = null)
+            }
+        }
+
+        _uiState.update {
+            it.copy(
+                identityUrl = null,
+                identityCancelled = false,
+                account = null,
+                accountLoading = false,
+                accountError = null,
+                preflightLoading = false,
+                preflightNotice = null,
+                preflightCleanOrNot = null,
+                preflightError = null,
+                unlockPhase = UnlockPhase.Idle,
+                unlockMessage = null,
+                unlockError = null,
+                unlockErrorCode = null
+            )
+        }
+        loadAccount(force = true)
+    }
+
+    /**
+     * The user backed out of the identity WebView. Keep the session (the
+     * passToken is still valid) and offer Retry on the account screen.
+     */
+    fun cancelIdentityVerification() {
+        if (_uiState.value.identityUrl == null) return
+        _uiState.update {
+            it.copy(
+                identityUrl = null,
+                identityCancelled = true,
+                accountError = container.stringProvider.getString(
+                    R.string.account_identity_cancelled
+                )
+            )
+        }
     }
 
     private suspend fun requestPreflight(
@@ -873,11 +973,19 @@ class UblViewModel(
                 it.copy(ssecurity = null, serviceToken = null, resolvedAt = null)
             }
             val retrySession = container.sessionStore.session
-                ?: throw SessionExpiredException(sessionExpiredMessage(), error)
+                ?: throw SessionExpiredException(sessionExpiredMessage(error), error)
             try {
                 container.authRepository.resolveAccount(retrySession)
             } catch (retryError: XiaomiAuthException) {
-                throw SessionExpiredException(sessionExpiredMessage(), retryError)
+                // Keep the stage-specific reason (region check, login
+                // exchange, or STS) instead of collapsing every failure into
+                // the generic "session expired" text. Only an explicit
+                // rejection clears the saved login session; protocol and
+                // network failures must stay retryable without a new sign-in.
+                if (retryError.rejected) {
+                    throw SessionExpiredException(sessionExpiredMessage(retryError), retryError)
+                }
+                throw retryError
             }
         }
     }
@@ -892,7 +1000,10 @@ class UblViewModel(
         val account = try {
             container.authRepository.resolveAccount(session)
         } catch (error: XiaomiAuthException) {
-            throw SessionExpiredException(sessionExpiredMessage(), error)
+            if (error.rejected) {
+                throw SessionExpiredException(sessionExpiredMessage(error), error)
+            }
+            throw error
         }
 
         val resolvedSession = persistResolvedAccount(account)
@@ -904,13 +1015,21 @@ class UblViewModel(
 
     private fun persistResolvedAccount(account: XiaomiAccount): XiaomiSession? {
         val resolvedAt = System.currentTimeMillis()
-        container.sessionStore.update {
-            it.copy(
+        container.sessionStore.update { current ->
+            val mergedCookies = current.cookies + account.cookies
+            current.copy(
+                passToken = mergedCookies["passToken"]
+                    ?.takeIf { it.isNotBlank() }
+                    ?: current.passToken,
+                deviceId = mergedCookies["deviceId"]
+                    ?.takeIf { it.isNotBlank() }
+                    ?: current.deviceId,
                 region = account.region,
                 host = account.host,
                 ssecurity = account.ssecurity,
                 serviceToken = account.serviceToken,
-                resolvedAt = resolvedAt
+                resolvedAt = resolvedAt,
+                cookies = mergedCookies
             )
         }
         return container.sessionStore.session
@@ -918,13 +1037,42 @@ class UblViewModel(
 
     private fun clearSessionAfterExpiry() {
         container.sessionStore.clear()
+        // Xiaomi rejected the stored credentials. Drop the WebView cookies as
+        // well so the next login does not silently reuse the same dead
+        // passToken/deviceId pair.
+        container.cookieCleaner.clearCookies()
         _uiState.update {
-            it.copy(session = null, account = null)
+            it.copy(
+                session = null,
+                account = null,
+                identityUrl = null,
+                identityCancelled = false
+            )
         }
         _events.trySend(UblEvent.SessionExpired)
     }
 
-    private fun sessionExpiredMessage(error: SessionExpiredException? = null): String {
+    private fun requestIdentityVerification(error: XiaomiIdentityRequiredException) {
+        _uiState.update {
+            it.copy(
+                identityUrl = error.notificationUrl,
+                identityCancelled = false,
+                accountLoading = false,
+                accountError = null,
+                preflightLoading = false,
+                preflightNotice = null,
+                preflightCleanOrNot = null,
+                preflightError = null,
+                unlockPhase = UnlockPhase.Idle,
+                unlockMessage = null,
+                unlockError = null,
+                unlockErrorCode = null
+            )
+        }
+        _events.trySend(UblEvent.IdentityRequired(error.notificationUrl))
+    }
+
+    private fun sessionExpiredMessage(error: Throwable? = null): String {
         return error?.message?.takeIf { it.isNotBlank() }
             ?: container.stringProvider.getString(R.string.account_session_expired)
     }
@@ -1009,7 +1157,14 @@ class UblViewModel(
 
     private fun friendlyError(error: Exception): String = when (error) {
         is SessionExpiredException -> sessionExpiredMessage(error)
-        is XiaomiAuthException -> sessionExpiredMessage()
+        is XiaomiAuthException -> buildString {
+            append(container.stringProvider.getString(R.string.error_network))
+            error.message?.takeIf { it.isNotBlank() }?.let { detail ->
+                append(" (")
+                append(detail)
+                append(')')
+            }
+        }
         is XiaomiApiException -> XiaomiErrorMapper.format(error, container.stringProvider)
         is FastbootException -> when (error.kind) {
             FastbootErrorKind.Disconnected -> container.stringProvider.getString(

@@ -34,6 +34,7 @@ import dev.bootloaderstudio.app.ubl.UblUiState
 fun AccountScreen(
     uiState: UblUiState,
     onLoadAccount: () -> Unit,
+    onRetry: () -> Unit = onLoadAccount,
     onBack: () -> Unit,
     onContinue: () -> Unit,
     onLogout: (() -> Unit)? = null
@@ -84,7 +85,7 @@ fun AccountScreen(
                             }
                         }
                         Button(
-                            onClick = onLoadAccount,
+                            onClick = onRetry,
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(stringResource(R.string.btn_retry))

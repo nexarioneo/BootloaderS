@@ -15,6 +15,7 @@ enum class DeviceState {
 
 sealed interface UblEvent {
     data object SessionExpired : UblEvent
+    data class IdentityRequired(val url: String) : UblEvent
 }
 
 enum class UnlockPhase {
@@ -40,6 +41,8 @@ data class UblUiState(
     val account: XiaomiAccount? = null,
     val accountLoading: Boolean = false,
     val accountError: String? = null,
+    val identityUrl: String? = null,
+    val identityCancelled: Boolean = false,
     val device: DeviceInfo? = null,
     val deviceState: DeviceState = DeviceState.Idle,
     val deviceMessage: String? = null,

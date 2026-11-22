@@ -40,6 +40,7 @@ private object Routes {
     const val GUIDE = "guide"
     const val LOGIN = "login"
     const val WEBVIEW = "webview"
+    const val IDENTITY = "identity"
     const val ACCOUNT = "account"
     const val DEVICE = "device"
     const val PREFLIGHT = "preflight"
@@ -62,6 +63,11 @@ fun BootloaderStudioApp(
                 UblEvent.SessionExpired -> {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.HOME) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+                is UblEvent.IdentityRequired -> {
+                    navController.navigate(Routes.IDENTITY) {
                         launchSingleTop = true
                     }
                 }
@@ -151,7 +157,8 @@ fun BootloaderStudioApp(
                         val session = XiaomiSession(
                             passToken = passToken,
                             deviceId = deviceId,
-                            userId = userId
+                            userId = userId,
+                            cookies = cookies
                         )
                         viewModel.onLoginSuccess(session)
                         true
@@ -167,10 +174,69 @@ fun BootloaderStudioApp(
             )
         }
 
+        composable(Routes.IDENTITY) {
+            var identitySession by remember { mutableStateOf<XiaomiSession?>(null) }
+            var identityFinished by remember { mutableStateOf(false) }
+            val identityUrl = uiState.identityUrl
+
+            if (identityUrl.isNullOrBlank()) {
+                LaunchedEffect(Unit) {
+                    if (!identityFinished) navController.popBackStack()
+                }
+            } else {
+                AppWebViewScreen(
+                    initialUrl = identityUrl,
+                    title = stringResource(R.string.login_identity_title),
+                    subtitle = "account.xiaomi.com",
+                    userAgent = XIAOMI_MOBILE_UA,
+                    endPattern = XIAOMI_END_PATTERN,
+                    onBack = {
+                        viewModel.cancelIdentityVerification()
+                        navController.navigate(Routes.ACCOUNT) {
+                            popUpTo(Routes.ACCOUNT) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    },
+                    onCookiesExtracted = { cookies ->
+                        val passToken = cookies["passToken"]
+                        val userId = cookies["userId"]
+                        val deviceId = cookies["deviceId"]
+                        if (!passToken.isNullOrBlank() && !userId.isNullOrBlank()) {
+                            // Xiaomi may rotate the passToken while it verifies
+                            // the identity, so keep the freshest cookie values.
+                            identitySession = XiaomiSession(
+                                passToken = passToken,
+                                deviceId = deviceId
+                                    ?: uiState.session?.deviceId.orEmpty(),
+                                userId = userId,
+                                cookies = cookies
+                            )
+                        }
+                        // Never block completion on cookie extraction: the
+                        // stored session is still usable if Xiaomi keeps it
+                        // unchanged.
+                        true
+                    },
+                    onSuccess = {
+                        if (!identityFinished) {
+                            identityFinished = true
+                            viewModel.onIdentityVerified(identitySession)
+                            navController.navigate(Routes.ACCOUNT) {
+                                popUpTo(Routes.ACCOUNT) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        }
+                    },
+                    requireSessionCookies = false
+                )
+            }
+        }
+
         composable(Routes.ACCOUNT) {
             AccountScreen(
                 uiState = uiState,
                 onLoadAccount = { viewModel.loadAccount() },
+                onRetry = { viewModel.loadAccount(force = true) },
                 onBack = { navController.popBackStack() },
                 onContinue = {
                     navController.navigate(Routes.DEVICE) { launchSingleTop = true }

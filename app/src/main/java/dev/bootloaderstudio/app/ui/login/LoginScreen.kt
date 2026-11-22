@@ -61,7 +61,8 @@ import dev.bootloaderstudio.app.ui.theme.Orange
 import dev.bootloaderstudio.app.ubl.UblUiState
 
 const val XIAOMI_LOGIN_URL =
-    "https://account.xiaomi.com/pass/serviceLogin?sid=unlockApi&checkSafeAddress=true"
+    "https://account.xiaomi.com/pass/serviceLogin?sid=unlockApi" +
+        "&checkSafeAddress=true"
 
 const val XIAOMI_MOBILE_UA = "(Android) Mobile"
 

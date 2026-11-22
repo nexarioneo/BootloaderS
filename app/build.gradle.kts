@@ -38,8 +38,8 @@ android {
         applicationId = "dev.bootloaderstudio.app"
         minSdk = 28
         targetSdk = 36
-        versionCode = 29
-        versionName = "1.0.28"
+        versionCode = 30
+        versionName = "1.0.29"
 
         vectorDrawables {
             useSupportLibrary = true

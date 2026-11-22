@@ -148,6 +148,7 @@
     <string name="login_save_failed_title">Could not save the session</string>
     <string name="login_save_failed_desc">Xiaomi completed the login, but the required session cookies could not be read. Scan the page again, or go back and sign in again.</string>
     <string name="login_save_failed_retry">Scan again</string>
+    <string name="login_identity_title">Verify your identity</string>
 
     <!-- Account -->
     <string name="account_title">Xiaomi account</string>
@@ -161,6 +162,7 @@
     <string name="account_btn_switch">Switch Account</string>
     <string name="account_no_session">No Xiaomi session is available. Go back and sign in again.</string>
     <string name="account_session_expired">Your Xiaomi session expired. Sign in again to continue.</string>
+    <string name="account_identity_cancelled">Identity verification was not completed. Tap Retry to continue.</string>
     <string name="account_btn_relogin">Sign In Again</string>
     <string name="account_server_decision_note">Xiaomi\'s server decides whether this account and device are eligible. A waiting period, Community authorization, or quota may still apply.</string>
 

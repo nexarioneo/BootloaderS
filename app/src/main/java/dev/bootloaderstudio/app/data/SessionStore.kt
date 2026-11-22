@@ -28,7 +28,9 @@ class SessionStore(
         private set
 
     init {
-        session = loadFromStorage() ?: recoverFromCookies()
+        session = loadFromStorage()
+            ?.let { enrichWithWebViewCookies(it) }
+            ?: recoverFromCookies()
     }
 
     private fun loadFromStorage(): XiaomiSession? {
@@ -65,30 +67,57 @@ class SessionStore(
         return legacy
     }
 
+    private fun enrichWithWebViewCookies(session: XiaomiSession): XiaomiSession {
+        if (session.cookies.isNotEmpty()) return session
+        val cookieManager = CookieManager.getInstance()
+        val cookieString = cookieManager.getCookie("https://account.xiaomi.com")
+            ?: return session
+        val cookies = parseCookieString(cookieString)
+        if (cookies.isEmpty()) return session
+
+        // Sessions written by older builds only contain the passToken
+        // triplet. Pick up the remaining browser cookies (cUserId,
+        // passport_*, unlockApi_*) without forcing another sign-in.
+        val enriched = session.copy(cookies = session.cookies + cookies)
+        save(enriched)
+        return enriched
+    }
+
     private fun recoverFromCookies(): XiaomiSession? {
         val cookieManager = CookieManager.getInstance()
         val cookieString = cookieManager.getCookie("https://account.xiaomi.com") ?: return null
+        val cookies = parseCookieString(cookieString)
 
-        fun extractValue(key: String): String? {
-            return cookieString.split(";")
-                .map { it.trim() }
-                .find { it.startsWith("$key=") }
-                ?.substringAfter("$key=")
-                ?.trim()
-                ?.takeIf { it.isNotEmpty() && !it.equals("null", true) }
-        }
-
-        val passToken = extractValue("passToken") ?: return null
-        val deviceId = extractValue("deviceId") ?: return null
-        val userId = extractValue("userId") ?: return null
+        val passToken = cookies["passToken"] ?: return null
+        val deviceId = cookies["deviceId"] ?: return null
+        val userId = cookies["userId"] ?: return null
 
         val recovered = XiaomiSession(
             passToken = passToken,
             deviceId = deviceId,
-            userId = userId
+            userId = userId,
+            cookies = cookies
         )
         save(recovered)
         return recovered
+    }
+
+    private fun parseCookieString(cookieString: String): Map<String, String> {
+        return buildMap {
+            cookieString.split(";").forEach { part ->
+                val trimmed = part.trim()
+                if (trimmed.isEmpty() || !trimmed.contains("=")) return@forEach
+                val name = trimmed.substringBefore("=").trim()
+                val value = trimmed.substringAfter("=", "").trim()
+                if (name.isEmpty() || value.isEmpty()) return@forEach
+                if (value.equals("null", ignoreCase = true) ||
+                    value.equals("EXPIRED", ignoreCase = true)
+                ) {
+                    return@forEach
+                }
+                put(name, value)
+            }
+        }
     }
 
     override fun save(session: XiaomiSession) {

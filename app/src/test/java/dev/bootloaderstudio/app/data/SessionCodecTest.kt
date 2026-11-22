@@ -2,8 +2,11 @@ package dev.bootloaderstudio.app.data
 
 import dev.bootloaderstudio.app.xiaomi.XiaomiSession
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.Base64
 
 class SessionCodecTest {
 
@@ -17,7 +20,12 @@ class SessionCodecTest {
             host = "unlock.update.miui.com",
             ssecurity = "ssecurity",
             serviceToken = "service-token",
-            resolvedAt = 1_700_000_000_000L
+            resolvedAt = 1_700_000_000_000L,
+            cookies = mapOf(
+                "cUserId" to "c-user",
+                "passport_ph" to "ph-value",
+                "weird" to "x,y:z\nline"
+            )
         )
 
         assertEquals(session, SessionCodec.decode(SessionCodec.encode(session)))
@@ -65,8 +73,39 @@ class SessionCodecTest {
     fun unknownVersionIsRejected() {
         val payload = SessionCodec.encode(minimalSession())
             .toString(Charsets.UTF_8)
-            .replaceFirst("v1", "v2")
+            .replaceFirst("v2", "v9")
         assertNull(SessionCodec.decode(payload.toByteArray()))
+    }
+
+    @Test
+    fun legacyV1PayloadStillDecodes() {
+        val fields = listOf(
+            "pass-token",
+            "device-id",
+            "user-id",
+            "ID",
+            "unlock.update.miui.com",
+            "ssecurity",
+            "service-token",
+            "1700000000000"
+        )
+        val payload = buildString {
+            append("v1")
+            fields.forEach { field ->
+                append('\n')
+                append(
+                    Base64.getUrlEncoder().withoutPadding()
+                        .encodeToString(field.toByteArray(Charsets.UTF_8))
+                )
+            }
+        }
+
+        val decoded = SessionCodec.decode(payload.toByteArray())
+
+        assertNotNull(decoded)
+        assertEquals("pass-token", decoded?.passToken)
+        assertEquals("ID", decoded?.region)
+        assertTrue(decoded?.cookies?.isEmpty() == true)
     }
 
     @Test

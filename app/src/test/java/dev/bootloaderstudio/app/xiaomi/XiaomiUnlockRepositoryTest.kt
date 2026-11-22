@@ -59,7 +59,18 @@ class XiaomiUnlockRepositoryTest {
 
         assertEquals("eligible", result.notice)
         assertEquals(1, result.cleanOrNot)
-        assertEquals("/api/v2/unlock/device/clear", server.takeRequest().path)
+        val request = server.takeRequest()
+        assertEquals("/api/v2/unlock/device/clear", request.path)
+        assertTrue(request.body.readUtf8().contains("appId="))
+    }
+
+    @Test
+    fun requestNonceMapsUnauthorizedToAnAuthException() = runTest {
+        server.enqueue(MockResponse().setResponseCode(401))
+
+        val error = runCatching { repository.requestNonce(account) }.exceptionOrNull()
+
+        assertTrue(error is XiaomiAuthException)
     }
 
     @Test

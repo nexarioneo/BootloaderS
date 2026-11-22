@@ -83,6 +83,27 @@ import kotlinx.coroutines.delay
 import java.net.URI
 import java.util.concurrent.atomic.AtomicReference
 
+/** How many times a failed main-frame navigation is retried automatically. */
+private const val MAX_MAIN_FRAME_RETRIES = 2
+
+/** Extra STS checks after the page reports it finished loading. */
+private const val MAX_COMPLETION_CHECKS = 3
+
+/** How long to wait for the cookie jar before falling back to a reload. */
+private const val MAX_COOKIE_WAIT_ATTEMPTS = 3
+
+/**
+ * WebView error descriptions that do not represent a real page failure. They
+ * are emitted when a redirect or JavaScript navigation supersedes a request.
+ */
+private fun isIgnorableWebError(description: String): Boolean {
+    val text = description.lowercase()
+    return text.contains("err_aborted") ||
+        text.contains("err_blocked_by_client") ||
+        text.contains("err_canceled") ||
+        text.contains("err_cancelled")
+}
+
 /**
  * 100% Jetpack Compose Reusable WebView Screen.
  *
@@ -105,7 +126,8 @@ fun AppWebViewScreen(
     endPattern: String? = null,
     onBack: () -> Unit,
     onCookiesExtracted: ((Map<String, String>) -> Boolean)? = null,
-    onSuccess: (() -> Unit)? = null
+    onSuccess: (() -> Unit)? = null,
+    requireSessionCookies: Boolean = true
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -117,10 +139,15 @@ fun AppWebViewScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showMenu by remember { mutableStateOf(false) }
     var reloadTrigger by remember { mutableIntStateOf(0) }
+    var mainFrameRetries by remember { mutableIntStateOf(0) }
+    var lastFailedMainFrameUrl by remember { mutableStateOf<String?>(null) }
+    var cookieWaitAttempts by remember { mutableIntStateOf(0) }
+    var completionCheckTick by remember { mutableIntStateOf(0) }
 
     var passToken by remember { mutableStateOf<String?>(null) }
     var deviceId by remember { mutableStateOf<String?>(null) }
     var userId by remember { mutableStateOf<String?>(null) }
+    var allCookies by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
     var monitoringEnded by remember { mutableStateOf(false) }
     var checkingCompletion by remember { mutableStateOf(false) }
     var completionError by remember { mutableStateOf(false) }
@@ -141,27 +168,54 @@ fun AppWebViewScreen(
         val cookieManager = CookieManager.getInstance()
         val accountCookies = cookieManager.getCookie("https://account.xiaomi.com") ?: ""
         val unlockCookies = cookieManager.getCookie("https://unlock.update.miui.com") ?: ""
-        val combined = "$accountCookies; $unlockCookies"
 
-        fun extractValue(key: String): String? {
-            return combined.split(";")
-                .map { it.trim() }
-                .find { it.startsWith("$key=") }
-                ?.substringAfter("$key=")
-                ?.trim()
-                ?.takeIf { it.isNotEmpty() && !it.equals("null", true) }
+        fun parse(value: String): Map<String, String> = buildMap {
+            value.split(";").forEach { part ->
+                val trimmed = part.trim()
+                if (trimmed.isEmpty() || !trimmed.contains("=")) return@forEach
+                val name = trimmed.substringBefore("=").trim()
+                val cookieValue = trimmed.substringAfter("=", "").trim()
+                if (name.isEmpty() || cookieValue.isEmpty()) return@forEach
+                if (cookieValue.equals("null", ignoreCase = true) ||
+                    cookieValue.equals("EXPIRED", ignoreCase = true)
+                ) {
+                    return@forEach
+                }
+                put(name, cookieValue)
+            }
         }
 
-        passToken = passToken ?: extractValue("passToken")
-        deviceId = deviceId ?: extractValue("deviceId")
-        userId = userId ?: extractValue("userId")
+        // Account cookies win over same-named unlock-domain cookies so a
+        // deletion sentinel on the unlock host cannot erase a valid
+        // passToken/deviceId/userId. Unlock-only cookies (serviceToken,
+        // unlockApi_slh/ph) are still preserved.
+        val parsed = LinkedHashMap<String, String>()
+        parse(accountCookies).forEach { (name, value) -> parsed[name] = value }
+        parse(unlockCookies).forEach { (name, value) -> parsed.putIfAbsent(name, value) }
+        allCookies = parsed
+
+        // Always keep the most recent value. The WebView cookie jar is shared
+        // between login attempts, so a first-write-wins latch could preserve
+        // an expired passToken even after the user has signed in again.
+        parsed["passToken"]?.let { passToken = it }
+        parsed["deviceId"]?.let { deviceId = it }
+        parsed["userId"]?.let { userId = it }
     }
 
     fun checkForEndSignal(view: WebView) {
         if (monitoringEnded || checkingCompletion || completionError || endPattern.isNullOrBlank()) return
 
         checkingCompletion = true
-        view.evaluateJavascript("document.documentElement.outerHTML") { html ->
+        // Read both the serialized HTML and the rendered text. The STS
+        // endpoint answers with application/json, which WebView renders as a
+        // plain-text document; depending on the WebView version the finished
+        // signal can appear in either representation.
+        view.evaluateJavascript(
+            "(function(){" +
+                "var html=document.documentElement?document.documentElement.outerHTML:'';" +
+                "var text=document.body?(document.body.innerText||''):'';" +
+                "return html+'\\n'+text;})()"
+        ) { html ->
             try {
                 if (html != null && !monitoringEnded && !completionError) {
                     val cleanedHtml = html.replace("\\u003C", "<")
@@ -175,12 +229,14 @@ fun AppWebViewScreen(
                                      !deviceId.isNullOrBlank() &&
                                      !userId.isNullOrBlank()
 
-                        if (hasAll) {
-                            val cookies = mapOf(
-                                "passToken" to passToken!!,
-                                "deviceId" to deviceId!!,
-                                "userId" to userId!!
-                            )
+                        if (hasAll || !requireSessionCookies) {
+                            val cookies = LinkedHashMap(allCookies)
+                            passToken?.takeIf { it.isNotBlank() }
+                                ?.let { cookies["passToken"] = it }
+                            deviceId?.takeIf { it.isNotBlank() }
+                                ?.let { cookies["deviceId"] = it }
+                            userId?.takeIf { it.isNotBlank() }
+                                ?.let { cookies["userId"] = it }
                             // Only show the success overlay after the session
                             // has actually been accepted and persisted.
                             val accepted = runCatching {
@@ -193,7 +249,15 @@ fun AppWebViewScreen(
                                 completionError = true
                             }
                         } else {
-                            view.loadUrl(initialUrl)
+                            cookieWaitAttempts++
+                            // The cookie jar can be updated a few hundred
+                            // milliseconds after the page body is rendered.
+                            // The scheduled completion checks retry extraction
+                            // first; reloading the login URL immediately is
+                            // what made the first attempt appear to fail.
+                            if (cookieWaitAttempts > MAX_COOKIE_WAIT_ATTEMPTS) {
+                                view.loadUrl(initialUrl)
+                            }
                         }
                     }
                 }
@@ -208,6 +272,19 @@ fun AppWebViewScreen(
         delay(5000)
         if (isLoading) {
             isLoading = false
+        }
+    }
+
+    // The STS JSON page can report onPageFinished before its text and cookies
+    // are fully visible. Re-check a few times instead of requiring the user to
+    // press reload manually.
+    LaunchedEffect(completionCheckTick) {
+        if (completionCheckTick == 0) return@LaunchedEffect
+        repeat(MAX_COMPLETION_CHECKS) { index ->
+            delay(if (index == 0) 350L else 750L)
+            val view = webViewRef.get() ?: return@LaunchedEffect
+            if (monitoringEnded || completionError) return@LaunchedEffect
+            checkForEndSignal(view)
         }
     }
 
@@ -437,12 +514,23 @@ fun AppWebViewScreen(
                                     progress = newProgress / 100f
                                     if (newProgress >= 100) {
                                         isLoading = false
+                                        if (!monitoringEnded && view != null) {
+                                            checkForEndSignal(view)
+                                            completionCheckTick++
+                                        }
                                     }
                                 }
 
                                 override fun onReceivedTitle(view: WebView?, webTitle: String?) {
-                                    if (!webTitle.isNullOrBlank() && !webTitle.startsWith("http")) {
+                                    val pattern = endPattern
+                                    val looksLikeEnd = pattern != null &&
+                                        webTitle?.contains(pattern) == true
+                                    if (!looksLikeEnd && !webTitle.isNullOrBlank() &&
+                                        !webTitle.startsWith("http")) {
                                         currentTitle = webTitle
+                                    }
+                                    if (!monitoringEnded && view != null && looksLikeEnd) {
+                                        checkForEndSignal(view)
                                     }
                                 }
                             }
@@ -459,17 +547,33 @@ fun AppWebViewScreen(
                                     currentUrl = url
                                     isLoading = true
                                     errorMessage = null
+                                    cookieWaitAttempts = 0
+                                    completionCheckTick = 0
+                                    if (url != lastFailedMainFrameUrl) {
+                                        mainFrameRetries = 0
+                                        lastFailedMainFrameUrl = null
+                                    }
+                                }
+
+                                override fun onPageCommitVisible(view: WebView, url: String) {
                                     if (!monitoringEnded) {
-                                        extractCookies()
+                                        currentUrl = url
+                                        checkForEndSignal(view)
+                                        completionCheckTick++
                                     }
                                 }
 
                                 override fun onPageFinished(view: WebView, url: String) {
                                     currentUrl = url
                                     isLoading = false
+                                    if (url != lastFailedMainFrameUrl) {
+                                        mainFrameRetries = 0
+                                        lastFailedMainFrameUrl = null
+                                    }
                                     if (!monitoringEnded) {
                                         extractCookies()
                                         checkForEndSignal(view)
+                                        completionCheckTick++
                                     }
                                 }
 
@@ -478,17 +582,43 @@ fun AppWebViewScreen(
                                     request: WebResourceRequest,
                                     error: WebResourceError
                                 ) {
-                                    if (request.isForMainFrame) {
-                                        val desc = error.description?.toString().orEmpty()
-                                        if (!desc.contains("ERR_ABORTED", ignoreCase = true)) {
-                                            isLoading = false
-                                            errorMessage = context.getString(
-                                                R.string.webview_error_format,
-                                                desc,
-                                                error.errorCode
-                                            )
-                                        }
+                                    if (!request.isForMainFrame) return
+
+                                    val desc = error.description?.toString().orEmpty()
+                                    if (isIgnorableWebError(desc)) {
+                                        return
                                     }
+
+                                    val target = request.url?.toString().orEmpty()
+                                        .takeIf { it.startsWith("https://") || it.startsWith("http://") }
+                                        ?: view.url.orEmpty()
+                                            .takeIf { it.startsWith("https://") || it.startsWith("http://") }
+
+                                    // Xiaomi's login redirect chain occasionally
+                                    // reports a transient main-frame error even
+                                    // though the next retry renders the STS
+                                    // result. Retry automatically instead of
+                                    // forcing the user to tap reload.
+                                    if (target != null && !monitoringEnded &&
+                                        mainFrameRetries < MAX_MAIN_FRAME_RETRIES
+                                    ) {
+                                        mainFrameRetries++
+                                        lastFailedMainFrameUrl = target
+                                        isLoading = true
+                                        view.postDelayed({
+                                            if (!monitoringEnded && webViewRef.get() === view) {
+                                                view.loadUrl(target)
+                                            }
+                                        }, 600L)
+                                        return
+                                    }
+
+                                    isLoading = false
+                                    errorMessage = context.getString(
+                                        R.string.webview_error_format,
+                                        desc,
+                                        error.errorCode
+                                    )
                                 }
                             }
 

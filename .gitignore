@@ -21,6 +21,9 @@ captures/
 # Third-party reference material
 reference/
 
+# Local HAR captures (contain live account tokens)
+har/
+
 # Release signing
 keystore/
 

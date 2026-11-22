@@ -16,6 +16,7 @@ import dev.bootloaderstudio.app.xiaomi.XiaomiAccount
 import dev.bootloaderstudio.app.xiaomi.XiaomiApiException
 import dev.bootloaderstudio.app.xiaomi.XiaomiAuthException
 import dev.bootloaderstudio.app.xiaomi.XiaomiAuthService
+import dev.bootloaderstudio.app.xiaomi.XiaomiIdentityRequiredException
 import dev.bootloaderstudio.app.xiaomi.XiaomiSession
 import dev.bootloaderstudio.app.xiaomi.XiaomiUnlockService
 import kotlinx.coroutines.CoroutineDispatcher
@@ -32,6 +33,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -96,10 +98,33 @@ class UblViewModelTest {
     }
 
     @Test
+    fun resolvedAccountCookiesArePersistedWithTheSession() = runTest(dispatcher) {
+        val store = FakeSessionRepository(freshSession())
+        val auth = FakeAuthService(
+            account = ACCOUNT.copy(
+                cookies = mapOf(
+                    "cUserId" to "c-user",
+                    "passToken" to "rotated-pass-token"
+                )
+            )
+        )
+        val viewModel = viewModel(store = store, auth = auth)
+
+        viewModel.loadAccount(force = true)
+        advanceUntilIdle()
+
+        assertEquals("rotated-pass-token", store.session?.passToken)
+        assertEquals("c-user", store.session?.cookies?.get("cUserId"))
+    }
+
+    @Test
     fun authFailureClearsSessionAndEmitsExpiryEvent() = runTest(dispatcher) {
         val store = FakeSessionRepository(freshSession())
-        val auth = FakeAuthService(failure = XiaomiAuthException("expired"))
-        val viewModel = viewModel(store = store, auth = auth)
+        val auth = FakeAuthService(
+            failure = XiaomiAuthException("expired", rejected = true)
+        )
+        val cookies = FakeCookieCleaner()
+        val viewModel = viewModel(store = store, auth = auth, cookieCleaner = cookies)
 
         val event = async { viewModel.events.first() }
         viewModel.loadAccount(force = true)
@@ -108,8 +133,106 @@ class UblViewModelTest {
         assertEquals(2, auth.calls)
         assertNull(store.session)
         assertNull(viewModel.uiState.value.session)
-        assertEquals("session-expired", viewModel.uiState.value.accountError)
+        assertEquals("expired", viewModel.uiState.value.accountError)
+        assertTrue(cookies.cleared)
         assertEquals(UblEvent.SessionExpired, event.await())
+    }
+
+    @Test
+    fun recoverableAccountFailureKeepsTheSessionForRetry() = runTest(dispatcher) {
+        val store = FakeSessionRepository(freshSession())
+        val auth = FakeAuthService(
+            failure = XiaomiAuthException(
+                "Xiaomi STS did not return an unlock service token."
+            )
+        )
+        val cookies = FakeCookieCleaner()
+        val viewModel = viewModel(store = store, auth = auth, cookieCleaner = cookies)
+
+        viewModel.loadAccount(force = true)
+        advanceUntilIdle()
+
+        assertEquals(2, auth.calls)
+        assertNotNull(store.session)
+        assertNotNull(viewModel.uiState.value.session)
+        assertFalse(cookies.cleared)
+        assertTrue(
+            viewModel.uiState.value.accountError.orEmpty()
+                .contains("unlock service token")
+        )
+    }
+
+    @Test
+    fun identityRequirementKeepsTheSessionAndEmitsAnIdentityEvent() = runTest(dispatcher) {
+        val store = FakeSessionRepository(freshSession())
+        val url = "https://account.xiaomi.com/fe/service/identity/authStart?sid=unlockApi"
+        val auth = FakeAuthService(failure = XiaomiIdentityRequiredException(url, 1))
+        val cookies = FakeCookieCleaner()
+        val viewModel = viewModel(store = store, auth = auth, cookieCleaner = cookies)
+
+        val event = async { viewModel.events.first() }
+        viewModel.loadAccount(force = true)
+        advanceUntilIdle()
+
+        assertEquals(1, auth.calls)
+        assertNotNull(store.session)
+        assertFalse(cookies.cleared)
+        assertEquals(url, viewModel.uiState.value.identityUrl)
+        assertNull(viewModel.uiState.value.accountError)
+        assertEquals(UblEvent.IdentityRequired(url), event.await())
+    }
+
+    @Test
+    fun identityVerificationRefreshesTheSessionAndResolvesTheAccount() = runTest(dispatcher) {
+        val store = FakeSessionRepository(freshSession())
+        val url = "https://account.xiaomi.com/fe/service/identity/authStart?sid=unlockApi"
+        val auth = FakeAuthService(failure = XiaomiIdentityRequiredException(url, 1))
+        val viewModel = viewModel(store = store, auth = auth)
+
+        viewModel.loadAccount(force = true)
+        advanceUntilIdle()
+        assertEquals(url, viewModel.uiState.value.identityUrl)
+
+        auth.failure = null
+        viewModel.onIdentityVerified(
+            XiaomiSession(
+                passToken = "new-pass",
+                deviceId = "new-device",
+                userId = "new-user"
+            )
+        )
+        advanceUntilIdle()
+
+        assertEquals(2, auth.calls)
+        assertEquals("new-pass", store.session?.passToken)
+        assertEquals("new-device", store.session?.deviceId)
+        assertEquals("new-user", store.session?.userId)
+        assertEquals(ACCOUNT, viewModel.uiState.value.account)
+        assertNull(viewModel.uiState.value.identityUrl)
+    }
+
+    @Test
+    fun cancellingIdentityVerificationKeepsTheSession() = runTest(dispatcher) {
+        val store = FakeSessionRepository(freshSession())
+        val url = "https://account.xiaomi.com/fe/service/identity/authStart?sid=unlockApi"
+        val auth = FakeAuthService(failure = XiaomiIdentityRequiredException(url, 1))
+        val viewModel = viewModel(store = store, auth = auth)
+
+        viewModel.loadAccount(force = true)
+        advanceUntilIdle()
+        viewModel.cancelIdentityVerification()
+
+        assertNull(viewModel.uiState.value.identityUrl)
+        assertNotNull(store.session)
+        assertEquals("identity-cancelled", viewModel.uiState.value.accountError)
+        assertTrue(viewModel.uiState.value.identityCancelled)
+
+        // Re-entering the account screen must not immediately reopen the
+        // identity WebView; only an explicit Retry may start it again.
+        val callsAfterCancel = auth.calls
+        viewModel.loadAccount()
+        advanceUntilIdle()
+        assertEquals(callsAfterCancel, auth.calls)
     }
 
     @Test
@@ -127,6 +250,25 @@ class UblViewModelTest {
         assertEquals(2, unlock.nonceCalls)
         assertEquals(2, unlock.clearCalls)
         assertEquals(listOf("nonce-1", "nonce-2"), unlock.clearNonces)
+        assertEquals("notice-2", viewModel.uiState.value.preflightNotice)
+        assertNull(viewModel.uiState.value.preflightError)
+    }
+
+    @Test
+    fun prepareUnlockRefreshesTheAccountAfterAnUnlockAuthFailure() = runTest(dispatcher) {
+        val auth = FakeAuthService()
+        val unlock = FakeUnlockService().apply {
+            clearFailures.add(XiaomiAuthException("expired"))
+        }
+        val viewModel = viewModel(auth = auth, unlock = unlock)
+
+        viewModel.startDeviceDetection()
+        runCurrent()
+        viewModel.prepareUnlock()
+        advanceUntilIdle()
+
+        assertEquals(1, auth.calls)
+        assertEquals(2, unlock.clearCalls)
         assertEquals("notice-2", viewModel.uiState.value.preflightNotice)
         assertNull(viewModel.uiState.value.preflightError)
     }
@@ -506,7 +648,7 @@ class UblViewModelTest {
 
     private class FakeAuthService(
         private val account: XiaomiAccount = ACCOUNT,
-        private val failure: Exception? = null
+        var failure: Exception? = null
     ) : XiaomiAuthService {
         var calls = 0
 
@@ -523,8 +665,8 @@ class UblViewModelTest {
         var unlockCalls = 0
         val unlockNonces = mutableListOf<String>()
         val clearNonces = mutableListOf<String>()
-        val clearFailures = ArrayDeque<XiaomiApiException>()
-        val unlockFailures = ArrayDeque<XiaomiApiException>()
+        val clearFailures = ArrayDeque<Exception>()
+        val unlockFailures = ArrayDeque<Exception>()
 
         override suspend fun requestNonce(account: XiaomiAccount): String {
             nonceCalls++
@@ -640,6 +782,7 @@ class UblViewModelTest {
     private class FakeStringProvider : StringProvider {
         override fun getString(id: Int): String = when (id) {
             R.string.account_session_expired -> "session-expired"
+            R.string.account_identity_cancelled -> "identity-cancelled"
             R.string.unlock_refreshing_nonce -> "refreshing-nonce"
             R.string.unlock_success_verified -> "unlock-verified"
             R.string.unlock_success_unverified -> "unlock-unverified"

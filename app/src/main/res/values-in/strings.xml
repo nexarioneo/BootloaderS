@@ -148,6 +148,7 @@
     <string name="login_save_failed_title">Gagal menyimpan sesi</string>
     <string name="login_save_failed_desc">Login Xiaomi selesai, tetapi cookie sesi yang diperlukan tidak dapat dibaca. Pindai halaman lagi, atau kembali dan masuk ulang.</string>
     <string name="login_save_failed_retry">Pindai lagi</string>
+    <string name="login_identity_title">Verifikasi identitas Anda</string>
 
     <!-- Account -->
     <string name="account_title">Akun Xiaomi</string>
@@ -161,6 +162,7 @@
     <string name="account_btn_switch">Ganti Akun</string>
     <string name="account_no_session">Sesi Xiaomi tidak tersedia. Silakan kembali dan masuk lagi.</string>
     <string name="account_session_expired">Sesi Xiaomi Anda telah berakhir. Masuk lagi untuk melanjutkan.</string>
+    <string name="account_identity_cancelled">Verifikasi identitas belum selesai. Ketuk Coba Lagi untuk melanjutkan.</string>
     <string name="account_btn_relogin">Masuk Ulang</string>
     <string name="account_server_decision_note">Server Xiaomi yang menentukan apakah akun dan perangkat ini memenuhi syarat. Masa tunggu, otorisasi Komunitas, atau kuota mungkin masih berlaku.</string>
 
