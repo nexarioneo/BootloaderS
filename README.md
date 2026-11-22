@@ -4,6 +4,7 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.1-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![XDA Thread](https://img.shields.io/badge/XDA-Thread-FF6600)](https://xdaforums.com/t/app-open-source-bootloader-studio-unlock-your-xiaomi-bootloader-from-another-android-phone-no-pc-required.4809795/)
 
 Bootloader Studio is an unofficial Android client for **Xiaomi bootloader
 unlocking**. It performs the same server-authorized procedure as the official
@@ -51,6 +52,11 @@ itself. A second Android device with USB host/OTG support is required.
 Signed APKs are published on the
 [Releases](https://github.com/nexarioneo/BootloaderS/releases) page. The
 **universal** APK is recommended for sideloading.
+
+## Community
+
+Questions, feedback, and device reports are welcome in the
+[XDA Forums thread](https://xdaforums.com/t/app-open-source-bootloader-studio-unlock-your-xiaomi-bootloader-from-another-android-phone-no-pc-required.4809795/).
 
 ## Build
 
