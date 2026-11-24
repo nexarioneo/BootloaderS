@@ -1,4 +1,4 @@
-# Bootloader Studio
+# Bootloader Studio — Unlock Xiaomi Bootloader Without PC (Android)
 
 [![Android Release Build](https://github.com/nexarioneo/BootloaderS/actions/workflows/release.yml/badge.svg)](https://github.com/nexarioneo/BootloaderS/actions/workflows/release.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
@@ -7,9 +7,11 @@
 [![XDA Thread](https://img.shields.io/badge/XDA-Thread-FF6600)](https://xdaforums.com/t/app-open-source-bootloader-studio-unlock-your-xiaomi-bootloader-from-another-android-phone-no-pc-required.4809795/)
 [![Reddit](https://img.shields.io/badge/Reddit-r%2FPocoPhones-FF4500?logo=reddit&logoColor=white)](https://www.reddit.com/r/PocoPhones/s/hFnUvWBCNK)
 
-Bootloader Studio is an unofficial Android client for **Xiaomi bootloader
-unlocking**. It performs the same server-authorized procedure as the official
-Windows Mi Unlock tool and stages the signed unlock token over USB fastboot.
+Bootloader Studio is an open-source, unofficial Android app for unlocking
+**Xiaomi, Redmi, and POCO bootloaders without a PC**. It performs the same
+server-authorized procedure as the official Windows Mi Unlock tool and stages
+the signed unlock token over USB fastboot, using a second Android phone with
+USB OTG. No root, Termux, or Windows PC is required.
 
 > [!IMPORTANT]
 > **Not affiliated with Xiaomi.** Xiaomi, Redmi, POCO, MIUI, HyperOS, and Mi
@@ -20,7 +22,7 @@ Windows Mi Unlock tool and stages the signed unlock token over USB fastboot.
 
 | Home | Xiaomi account | Connect device |
 | :---: | :---: | :---: |
-| <img src="docs/images/01-home.jpg" width="240" alt="Home screen" /> | <img src="docs/images/02-account.jpg" width="240" alt="Xiaomi account session" /> | <img src="docs/images/03-device.jpg" width="240" alt="Fastboot device detection" /> |
+| <img src="docs/images/01-home.jpg" width="240" alt="Bootloader Studio home screen" /> | <img src="docs/images/02-account.jpg" width="240" alt="Bootloader Studio Xiaomi account login" /> | <img src="docs/images/03-device.jpg" width="240" alt="Bootloader Studio fastboot device detection" /> |
 
 ## Features
 
