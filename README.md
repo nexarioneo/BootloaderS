@@ -5,6 +5,7 @@
 [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.1-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![XDA Thread](https://img.shields.io/badge/XDA-Thread-FF6600)](https://xdaforums.com/t/app-open-source-bootloader-studio-unlock-your-xiaomi-bootloader-from-another-android-phone-no-pc-required.4809795/)
+[![Reddit](https://img.shields.io/badge/Reddit-r%2FPocoPhones-FF4500?logo=reddit&logoColor=white)](https://www.reddit.com/r/PocoPhones/s/hFnUvWBCNK)
 
 Bootloader Studio is an unofficial Android client for **Xiaomi bootloader
 unlocking**. It performs the same server-authorized procedure as the official
@@ -14,6 +15,12 @@ Windows Mi Unlock tool and stages the signed unlock token over USB fastboot.
 > **Not affiliated with Xiaomi.** Xiaomi, Redmi, POCO, MIUI, HyperOS, and Mi
 > Unlock are trademarks of Xiaomi Inc. This project is not endorsed by or
 > supported by Xiaomi. Use it only on devices you own, at your own risk.
+
+## Screenshots
+
+| Home | Xiaomi account | Connect device |
+| :---: | :---: | :---: |
+| <img src="docs/images/01-home.jpg" width="240" alt="Home screen" /> | <img src="docs/images/02-account.jpg" width="240" alt="Xiaomi account session" /> | <img src="docs/images/03-device.jpg" width="240" alt="Fastboot device detection" /> |
 
 ## Features
 
@@ -56,7 +63,8 @@ Signed APKs are published on the
 ## Community
 
 Questions, feedback, and device reports are welcome in the
-[XDA Forums thread](https://xdaforums.com/t/app-open-source-bootloader-studio-unlock-your-xiaomi-bootloader-from-another-android-phone-no-pc-required.4809795/).
+[XDA Forums thread](https://xdaforums.com/t/app-open-source-bootloader-studio-unlock-your-xiaomi-bootloader-from-another-android-phone-no-pc-required.4809795/)
+or on [Reddit r/PocoPhones](https://www.reddit.com/r/PocoPhones/s/hFnUvWBCNK).
 
 ## Build
 
