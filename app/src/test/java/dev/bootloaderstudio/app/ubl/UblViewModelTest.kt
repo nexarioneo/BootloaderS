@@ -274,7 +274,7 @@ class UblViewModelTest {
     }
 
     @Test
-    fun confirmUnlockRefreshesNonceAndClearApprovalOnce() = runTest(dispatcher) {
+    fun confirmUnlockRequestsAFreshNonceAndDoesNotRepeatClear() = runTest(dispatcher) {
         val transport = FakeFastbootTransport()
         val unlock = FakeUnlockService().apply {
             unlockFailures.add(XiaomiApiException(10005, "Invalid Nonce request"))
@@ -289,10 +289,13 @@ class UblViewModelTest {
         advanceUntilIdle()
 
         assertEquals(UnlockPhase.Success, viewModel.uiState.value.unlockPhase)
-        assertEquals(listOf("nonce-1", "nonce-2"), unlock.unlockNonces)
-        assertEquals(2, unlock.nonceCalls)
-        assertEquals(2, unlock.clearCalls)
-        assertEquals("notice-2", viewModel.uiState.value.preflightNotice)
+        // clearDevice consumed nonce-1. ahaUnlock then gets its own nonce for
+        // every attempt instead of reusing the preflight nonce.
+        assertEquals(listOf("nonce-2", "nonce-3"), unlock.unlockNonces)
+        assertEquals(listOf("nonce-1"), unlock.clearNonces)
+        assertEquals(3, unlock.nonceCalls)
+        assertEquals(1, unlock.clearCalls)
+        assertEquals("notice-1", viewModel.uiState.value.preflightNotice)
         assertEquals(1, transport.downloadCalls)
         assertEquals(1, transport.unlockCalls)
     }
@@ -475,8 +478,23 @@ class UblViewModelTest {
         viewModel.prepareUnlock()
         advanceUntilIdle()
 
-        assertEquals(2, unlock.nonceCalls)
+        assertEquals(3, unlock.nonceCalls)
         assertEquals(2, unlock.clearCalls)
+    }
+
+    @Test
+    fun confirmUnlockRejectsWhenPreflightHasNotRun() = runTest(dispatcher) {
+        val unlock = FakeUnlockService()
+        val viewModel = viewModel(unlock = unlock)
+
+        viewModel.startDeviceDetection()
+        runCurrent()
+        viewModel.confirmUnlock()
+        advanceUntilIdle()
+
+        assertEquals("unlock-not-prepared", viewModel.uiState.value.unlockError)
+        assertEquals(0, unlock.nonceCalls)
+        assertEquals(0, unlock.unlockCalls)
     }
 
     @Test

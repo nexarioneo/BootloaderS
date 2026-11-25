@@ -69,14 +69,12 @@ class UblViewModel(
     private var deviceJob: Job? = null
     private var preflightJob: Job? = null
     private var unlockJob: Job? = null
-    private var nonce: String? = null
     private var cachedPreflight: CachedPreflight? = null
 
     fun onLoginSuccess(session: XiaomiSession) {
         accountJob?.cancel()
         preflightJob?.cancel()
         unlockJob?.cancel()
-        nonce = null
         cachedPreflight = null
         container.sessionStore.save(session)
         _uiState.update {
@@ -176,7 +174,6 @@ class UblViewModel(
         if (force) {
             deviceJob?.cancel()
             deviceJob = null
-            nonce = null
             cachedPreflight = null
             _uiState.update {
                 it.copy(
@@ -318,7 +315,6 @@ class UblViewModel(
     fun onDeviceDetached() {
         deviceJob?.cancel()
         deviceJob = null
-        nonce = null
         cachedPreflight = null
         _uiState.update {
             it.copy(
@@ -390,7 +386,6 @@ class UblViewModel(
             _uiState.value.account != null &&
             SessionFreshness.isFresh(container.sessionStore.session, now())
         ) {
-            nonce = cached.nonce
             _uiState.update {
                 it.copy(
                     preflightLoading = false,
@@ -403,7 +398,6 @@ class UblViewModel(
         }
 
         preflightJob = viewModelScope.launch {
-            nonce = null
             cachedPreflight = null
             _uiState.update {
                 it.copy(
@@ -421,20 +415,18 @@ class UblViewModel(
                 while (true) {
                     try {
                         val preflight = requestPreflight(account, device)
-                        nonce = preflight.first
                         cachedPreflight = CachedPreflight(
                             product = device.product,
                             token = device.token,
-                            nonce = preflight.first,
-                            notice = preflight.second.notice,
-                            cleanOrNot = preflight.second.cleanOrNot,
+                            notice = preflight.notice,
+                            cleanOrNot = preflight.cleanOrNot,
                             createdAt = now()
                         )
                         _uiState.update {
                             it.copy(
                                 preflightLoading = false,
-                                preflightNotice = preflight.second.notice,
-                                preflightCleanOrNot = preflight.second.cleanOrNot,
+                                preflightNotice = preflight.notice,
+                                preflightCleanOrNot = preflight.cleanOrNot,
                                 preflightError = null
                             )
                         }
@@ -492,7 +484,6 @@ class UblViewModel(
         if (unlockJob?.isActive == true) return
         val account = _uiState.value.account
         val device = _uiState.value.device
-        val currentNonce = nonce
         val session = container.sessionStore.session
         if (account == null || device == null || session == null) {
             _uiState.update {
@@ -505,7 +496,7 @@ class UblViewModel(
             }
             return
         }
-        if (currentNonce == null) {
+        if (cachedPreflight == null) {
             _uiState.update {
                 it.copy(
                     unlockPhase = UnlockPhase.Error,
@@ -553,10 +544,10 @@ class UblViewModel(
         }
 
         val confirmedAccount: XiaomiAccount = account
-        val confirmedNonce: String = currentNonce
         val confirmedDeviceId: String = deviceId
-        // The nonce is about to be consumed by the unlock request. A later
-        // preflight must ask Xiaomi for a new one instead of reusing the cache.
+        // The eligibility result stays valid, but its nonce was consumed by
+        // clearDevice. Xiaomi's nonce is single-use, so confirmation must ask
+        // for a new one right before ahaUnlock.
         cachedPreflight = null
 
         unlockJob = viewModelScope.launch {
@@ -573,39 +564,17 @@ class UblViewModel(
 
             try {
                 var activeAccount = confirmedAccount
-                var activeNonce = confirmedNonce
                 var authRetried = false
                 var nonceRetried = false
-                var needsFreshApproval = false
                 var unlockResult: UnlockResult? = null
 
                 while (true) {
                     try {
-                        if (needsFreshApproval) {
-                            _uiState.update {
-                                it.copy(
-                                    unlockMessage = container.stringProvider.getString(
-                                        R.string.unlock_refreshing_nonce
-                                    ),
-                                    unlockError = null,
-                                    unlockErrorCode = null
-                                )
-                            }
-                            val preflight = requestPreflight(activeAccount, device)
-                            activeNonce = preflight.first
-                            nonce = activeNonce
-                            needsFreshApproval = false
-                            _uiState.update {
-                                it.copy(
-                                    preflightNotice = preflight.second.notice,
-                                    preflightCleanOrNot = preflight.second.cleanOrNot,
-                                    unlockMessage = container.stringProvider.getString(
-                                        R.string.unlock_message_requesting
-                                    )
-                                )
-                            }
-                        }
-
+                        // /api/v2/nonce is single-use. clearDevice already
+                        // consumed the preflight nonce, so every ahaUnlock
+                        // attempt needs its own fresh nonce.
+                        val activeNonce =
+                            container.unlockRepository.requestNonce(activeAccount)
                         unlockResult = container.unlockRepository.requestUnlock(
                             account = activeAccount,
                             product = device.product,
@@ -621,11 +590,11 @@ class UblViewModel(
                                 activeAccount = refreshAccountAfterAuthError()
                             }
                             isNonceExpiredError(error) && !nonceRetried -> {
-                                // The nonce expired after approval. Request a
-                                // fresh nonce and re-run clearDevice once before
-                                // asking for approval again.
+                                // The nonce was rejected or already consumed.
+                                // The next iteration requests a fresh one; do
+                                // not run clearDevice again because that would
+                                // consume the new nonce before ahaUnlock.
                                 nonceRetried = true
-                                needsFreshApproval = true
                             }
                             else -> throw error
                         }
@@ -809,7 +778,6 @@ class UblViewModel(
         deviceJob?.cancel()
         preflightJob?.cancel()
         unlockJob?.cancel()
-        nonce = null
         cachedPreflight = null
         _uiState.value = UblUiState(session = container.sessionStore.session)
     }
@@ -819,7 +787,6 @@ class UblViewModel(
         deviceJob?.cancel()
         preflightJob?.cancel()
         unlockJob?.cancel()
-        nonce = null
         cachedPreflight = null
         container.sessionStore.clear()
         container.cookieCleaner.clearCookies()
@@ -840,7 +807,6 @@ class UblViewModel(
         preflightJob = null
         unlockJob?.cancel()
         unlockJob = null
-        nonce = null
         cachedPreflight = null
 
         if (session != null) {
@@ -901,14 +867,15 @@ class UblViewModel(
     private suspend fun requestPreflight(
         account: XiaomiAccount,
         device: DeviceInfo
-    ): Pair<String, ClearResult> {
+    ): ClearResult {
+        // This nonce belongs only to clearDevice. It must not be reused for
+        // ahaUnlock because Xiaomi made /api/v2/nonce single-use.
         val freshNonce = container.unlockRepository.requestNonce(account)
-        val clear = container.unlockRepository.clearDevice(
+        return container.unlockRepository.clearDevice(
             account = account,
             product = device.product,
             nonce = freshNonce
         )
-        return freshNonce to clear
     }
 
     private fun reusablePreflight(device: DeviceInfo): CachedPreflight? {
@@ -1095,7 +1062,6 @@ class UblViewModel(
     }
 
     private fun clearStaleDevice(message: String) {
-        nonce = null
         cachedPreflight = null
         _uiState.update {
             it.copy(
@@ -1196,7 +1162,6 @@ class UblViewModel(
     private data class CachedPreflight(
         val product: String,
         val token: String,
-        val nonce: String,
         val notice: String?,
         val cleanOrNot: Int?,
         val createdAt: Long
@@ -1214,7 +1179,8 @@ class UblViewModel(
         private const val AUTH_ERROR_CODE = 10001
 
         // Xiaomi rejected or expired the unlock nonce. A single retry with a
-        // fresh nonce is allowed; the retry also re-runs clearDevice.
+        // fresh nonce is allowed; clearDevice is not repeated because its
+        // nonce is consumed separately.
         private const val NONCE_EXPIRED_ERROR_CODE = 10004
         private const val INVALID_NONCE_ERROR_CODE = 10005
 
